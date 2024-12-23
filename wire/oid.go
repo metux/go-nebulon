@@ -18,7 +18,7 @@ func EncapOIDRefList(oids []base.OID) OIDRefList {
 	for idx,ent := range oids {
 		l[idx] = EncapOID(ent)
 	}
-	return OIDRefList{Oids: l}
+	return OIDRefList{Magic: "BLOCK REF LIST", Oids: l}
 }
 
 func MarshalOIDRefList(oids []base.OID) ([]byte, error) {

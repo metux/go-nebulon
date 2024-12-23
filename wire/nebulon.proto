@@ -7,7 +7,8 @@ message OID {
 }
 
 message OIDRefList {
-    repeated OID oids = 1;
+    string magic = 1;
+    repeated OID oids = 2;
 }
 
 //message Person {

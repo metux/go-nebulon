@@ -7,7 +7,10 @@ import (
     "fmt"
     "github.com/metux/go-nebulon/base"
     "github.com/metux/go-nebulon/wire"
-//    "google.golang.org/protobuf/proto"
+)
+
+const (
+	BlockSize = 4096 * 1024
 )
 
 type FileStore struct {
@@ -21,27 +24,32 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 }
 
 func (fs FileStore) StoreBlockList(oids [] base.OID) (base.OID, error) {
-//	refs := wire.EncapOIDRefList(oids)
+	// FIXME: should split large chunks
 
 	fmt.Println("OIDS to store", oids)
+	fmt.Println("numer of OIDs", len(oids))
 	data, err := wire.MarshalOIDRefList(oids)
 
 	if err != nil {
 		fmt.Println("marshal error: ", err)
+		return base.OID{}, err
 	}
 
 	fmt.Println(data)
 
-	return base.OID{}, nil
+	oid, err := fs.BlockStore.StoreBlock(data)
+	if err != nil {
+		fmt.Println("error storing reflist block", err)
+		return oid, err
+	}
+
+	return oid, err
 }
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID, error) {
-	// declare chunk size
-	const blocksize = 4096
-
 	oids := make([]base.OID, 1)
 
-	buf := make([]byte, blocksize)
+	buf := make([]byte, BlockSize)
 	for {
 		readTotal, err := r.Read(buf)
 		if err != nil {
