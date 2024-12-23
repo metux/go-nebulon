@@ -1,10 +1,8 @@
 package blockstore
 
 import (
-	//	"io/ioutil"
 	"os"
 	"path/filepath"
-	//    "crypto/sha256"
 	"fmt"
 )
 
@@ -26,6 +24,7 @@ func (s Store) StoreRaw(data []byte) Key {
 	k := KeyForData(data)
 	fn := s.Key2FN(k)
 	os.MkdirAll(filepath.Dir(fn), os.ModePerm)
+	os.WriteFile(fn, data, 0644)
 	fmt.Println("file name", fn)
 	return k
 }
