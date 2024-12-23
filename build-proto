@@ -1,0 +1,3 @@
+#!/bin/bash
+
+protoc -I=. --go_out=. base/nebulon.proto --go_opt="Mbase/nebulon.proto=./base"

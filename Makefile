@@ -11,15 +11,19 @@ GO ?= /usr/lib/go-1.22/bin/go
 
 # GO := go
 
-run:
-	$(GO) get
+run: get-deps gen-proto
 	$(GO) run $(GOTAGS) .
+
+gen-proto:
+	protoc -I=. --go_out=. wire/nebulon.proto --go_opt="Mwire/nebulon.proto=./wire"
+
+get-deps:
+	$(GO) get
 
 test:
 	$(GO) test -v $(PACKAGE)/...
 
-compile:
-	$(GO) get
+compile: get-deps gen-proto
 	$(GO) build $(GOTAGS) .
 
 fmt:

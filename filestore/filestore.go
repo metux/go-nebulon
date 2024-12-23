@@ -6,6 +6,8 @@ import (
     "io"
     "fmt"
     "github.com/metux/go-nebulon/base"
+    "github.com/metux/go-nebulon/wire"
+//    "google.golang.org/protobuf/proto"
 )
 
 type FileStore struct {
@@ -16,6 +18,21 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
     return FileStore {
 	BlockStore: bs,
     }
+}
+
+func (fs FileStore) StoreBlockList(oids [] base.OID) (base.OID, error) {
+//	refs := wire.EncapOIDRefList(oids)
+
+	fmt.Println("OIDS to store", oids)
+	data, err := wire.MarshalOIDRefList(oids)
+
+	if err != nil {
+		fmt.Println("marshal error: ", err)
+	}
+
+	fmt.Println(data)
+
+	return base.OID{}, nil
 }
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID, error) {
@@ -34,7 +51,6 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID,
 			}
 			break
 		}
-//              fmt.Println(string(b[:readTotal])) // print content from buffer
 		k,_ := fs.BlockStore.StoreBlock(buf[:readTotal])
 		for _, v := range k.Data {
 			fmt.Printf("%d ", v)
@@ -46,9 +62,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID,
 			fmt.Printf("Read back error %s\n", e)
 			return base.OID{}, e
 		} else {
-			if bytes.Equal(d, buf[:readTotal]) {
-				fmt.Printf("Read back OK\n")
-			} else {
+			if !bytes.Equal(d, buf[:readTotal]) {
 				fmt.Printf("Read back failed - blocks not equal\n")
 				return base.OID{}, errors.New("Read back failed - blocks not equal")
 			}
@@ -57,11 +71,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID,
 		oids = append(oids, k)
 	}
 
-	for _,o := range oids {
-		fmt.Printf("OID: %s\n", o.String())
-	}
-
-	return base.OID{}, nil
+	return fs.StoreBlockList(oids)
 }
 
 func (fs FileStore) ReadFile(oid base.OID) (io.Reader, map[string]string, error) {
