@@ -1,0 +1,89 @@
+// Nebulon gRPC interface
+//
+// Not part of the "on-disk" format - only used for gRPC servers
+//
+syntax = "proto3";
+
+package wire;
+
+option go_package = "../wire";
+
+import public "core/files.proto";
+import public "core/blockref.proto";
+
+// FIXME: should we add version fields ?
+
+// gRPC interface: Ping request
+message RPC_PingRequest {
+    string msg = 1;
+}
+
+// gRPC interface: Ping reply
+message RPC_PingReply {
+    string msg = 1;
+}
+
+// gRPC interface: PutBlock request
+message RPC_PutBlockRequest {
+    bytes data = 1;
+    RefType reftype = 2;
+}
+
+// gRPC interface: PutBlock reply
+message RPC_PutBlockReply {
+    BlockRef ref = 1;
+}
+
+// gRPC interface: GetBlock request
+message RPC_GetBlockRequest {
+    BlockRef ref = 2;
+}
+
+// gRPC interface: GetBlock reply
+message RPC_GetBlockReply {
+    bytes data = 1;
+}
+
+// gRPC interface: KeepBlock request
+message RPC_KeepBlockRequest {
+    BlockRef ref = 1;
+}
+
+// gRPC interface: KeepBlock reply
+message RPC_KeepBlockReply {
+}
+
+// gRPC interface: PeekBlock request
+message RPC_PeekBlockRequest {
+    BlockRef ref = 1;
+    int32 fetch = 2;
+}
+
+// gRPC interface: PeekBlock reply
+message RPC_PeekBlockReply {
+    int64 ctime_seconds = 2;
+    int32 ctime_nanos = 3;
+    int64 mtime_seconds = 4;
+    int32 mtime_nanos = 5;
+    int64 size = 6;
+    int64 present = 7;
+}
+
+// gRPC interface: DeleteBlock request
+message RPC_DeleteBlockRequest {
+    BlockRef ref = 1;
+}
+
+// gRPC interface: DeleteBlock reply
+message RPC_DeleteBlockReply {
+}
+
+// gRPC interface: BlockStore service
+service BlockStore {
+    rpc Ping(RPC_PingRequest) returns (RPC_PingReply) {}
+    rpc Put(RPC_PutBlockRequest) returns (RPC_PutBlockReply) {}
+    rpc Get(RPC_GetBlockRequest) returns (RPC_GetBlockReply) {}
+    rpc Keep(RPC_KeepBlockRequest) returns (RPC_KeepBlockReply) {}
+    rpc Delete(RPC_DeleteBlockRequest) returns (RPC_DeleteBlockReply) {}
+    rpc Peek(RPC_PeekBlockRequest) returns (RPC_PeekBlockReply) {}
+}

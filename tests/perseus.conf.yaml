@@ -1,0 +1,41 @@
+# example and testbed configuration for perseus server
+
+blockstore:
+    local1:
+        type: local
+        url: ${ROOT}/.tmp/store.local
+    local2:
+        type: local
+        url: ${ROOT}/.tmp/store.cache
+    grpc1:
+        type: grpc
+        url: localhost:50051
+    http1:
+        type: http
+        url: http://localhost:8080
+    cache1:
+        type: cache
+        links:
+            remote: local1
+            cache: local2
+
+    # need a different entry because CWD is a subdirectory
+    unittest-helpers-1:
+        type: local
+        url: ${ROOT}/.tmp/store.unittest
+
+## for now Perseus can run only one of the servers per process
+server:
+    http-1:
+        type: http
+        blockstore: local1
+        port: 8080
+    http-2:
+        type: http
+        blockstore: cache1
+        port: 8080
+    grpc-1:
+        type: grpc
+        blockstore: local1
+        port: 50051
+        proto: tcp

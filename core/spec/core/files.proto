@@ -1,0 +1,40 @@
+// Nebulon core protocol: structures for storing file'ish objects
+//
+// This structures are part of the "on-disk" format.
+//
+syntax = "proto3";
+
+package wire;
+
+option go_package = "../wire";
+
+import public "core/blockref.proto";
+import public "core/metadata.proto";
+
+// primary head structure for file'ish objects:
+// it holds the (usually encrypted) FileControl structure as well as the
+// publicly visible reference list - must not be encrypted for GC to work
+//
+// When references pointing to FileHead objects having cipher and key,
+// these aren't used for decrypting the whole FileHead structure, but
+// it's embedded "private" field instead
+message FileHead {
+    // magic string for probing on raw data blocks
+    string magic = 1;
+    // publicly visible reference tracking (eg. for GC, opportunistic fetch, ...)
+    BlockRef grabs = 4;         // for encrypted files: publicly visible references, used for GC
+    // usually private data (see @FileControl)
+    // the key and cipher values are taken from the FileHead's reference
+    bytes private = 5;
+}
+
+// FileControl structure
+//
+// usually is encrypted and embedded in a FileHead's "private" field
+message FileControl {
+    BlockRef content = 1;
+    map<string, string> header = 2;
+    bool directory = 3;
+    FileMeta meta_medium = 4;
+    uint64 size = 5;
+}

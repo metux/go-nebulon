@@ -1,0 +1,5 @@
+go-nebulon
+*.tmp
+/swagger.json
+/doc/wire-format.html
+/doc/rpc-protocol.html

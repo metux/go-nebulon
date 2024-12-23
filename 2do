@@ -1,0 +1,31 @@
+* schema:
+    * file head:
+        include blockref lists into the head itself ?
+        include very small file data into head itself
+    * ref:
+        inline data (no oid, but data)
+    * signatures ?
+    * timestamps ?
+
+* http proto v1:
+    * revise ref url encoding
+    * write specification
+
+* IFileStore:
+    * GetHeader()
+
+* file reader:
+    * background fetch (goroutines)
+
+* core/crypt:
+    * add ZSTD (and use it for public ref lists)
+
+* media metadata
+    * subtitle stream
+    * chapters / sections
+
+* servers
+    * graceful shutdown or restart
+    * http file server:
+	* content-disposition
+	* IDs as int or name ?

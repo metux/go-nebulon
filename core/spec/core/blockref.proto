@@ -1,0 +1,64 @@
+// Nebulon core protocol: basic block references and their fields
+//
+// This structures are part of the "on-disk" format.
+//
+syntax = "proto3";
+
+package wire;
+
+option go_package = "../wire";
+
+// Reference object type
+// tells what kind of data is in the referred block
+enum RefType {
+    // simply a bunch of bytes (eg. a file's data block)
+    Blob = 0;
+    // list of references (@see BlockRefList)
+    RefList = 1;
+    // file'ish object (@see FileHead)
+    File = 2;
+    // directory (@see FileHead)
+    Directory = 3;
+}
+
+// Cipher type used for encryption
+enum CipherType {
+    // no encryption
+    None = 0;
+    // AES-CBC without prior compression
+    AES_CBC = 1;
+    // AES-CBC with prior zstd compression
+    AES_CBC_ZSTD = 2;
+}
+
+// a reference to a block
+// besides the OID (content's hash) also deciding what to do with the data
+//
+// offset & limit allow reusing pieces of existing blocks, eg. when several files
+// share pieces of the same data (or repeating data within a file)
+message BlockRef {
+    // @see RefType
+    RefType type = 1;
+    // object ID (usually SHA256 hash of the content)
+    bytes oid = 2;
+    // Cipher type used for encryption
+    CipherType cipher = 3;
+    // encryption key (only present when CipherType != None
+    bytes key = 4;
+    // offset for reading actual payload (after decryption and decompression)
+    int32 offset = 5;
+    // max number of payload bytes to use from this block
+    int32 limit = 6; // zero means use all
+    // optional name (eg. directory entries)
+    string name = 7;
+}
+
+// List of block references
+// Used in many places, e.g. for (publicly visible) reference tracking,
+// file payloads, directory trees, ...
+message BlockRefList {
+    // magic string (for probing type on raw block contents)
+    string magic = 1;
+    // list of block ref entries (@see BlockRef)
+    repeated BlockRef refs = 2;
+}

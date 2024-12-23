@@ -1,0 +1,3 @@
+#!/bin/sh
+
+../cmd/perseus/perseus --conf ./perseus.conf.yaml --server http-1

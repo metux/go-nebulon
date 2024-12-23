@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package wire;
+
+option go_package = "../wire";
+
+enum FileClass {
+    Undefined = 0;
+    Audio = 1;
+    Video = 2;
+    Image = 3;
+    Document = 4;
+}
+
+// metadata for media files
+message FileMetaMedia {
+    string title = 1;
+    string language = 3;
+    string show = 4;
+    int32 season_id = 5;
+    int32 episode_id = 6;
+}
+
+message FileMeta {
+    FileClass class = 1;
+    FileMetaMedia media = 2;
+}
