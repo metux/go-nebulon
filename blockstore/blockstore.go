@@ -28,3 +28,8 @@ func (s Store) StoreRaw(data []byte) Key {
 	fmt.Println("file name", fn)
 	return k
 }
+
+func (s Store) LoadRaw(k Key) ([] byte, error) {
+	fn := s.Key2FN(k)
+	return os.ReadFile(fn)
+}
