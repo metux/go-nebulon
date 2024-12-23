@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/metux/go-nebulon/blockstore"
+	"github.com/metux/go-nebulon/base"
 	"io"
 	"os"
 )
 
-func storefile(st blockstore.Store, fn string) error {
+func storefile(st base.BlockStore, fn string) error {
 	file, err := os.Open(fn)
 	if err != nil {
 		return err
@@ -31,13 +32,13 @@ func storefile(st blockstore.Store, fn string) error {
 			break
 		}
 //		fmt.Println(string(b[:readTotal])) // print content from buffer
-		k := st.StoreRaw(b[:readTotal])
+		k,_ := st.StoreBlock(b[:readTotal])
 		for _, v := range k.Data {
 			fmt.Printf("%d ", v)
 		}
 		fmt.Println("\n")
 
-		d,e := st.LoadRaw(k)
+		d,e := st.LoadBlock(k)
 		if e != nil {
 			fmt.Printf("Read back error %s\n", e)
 		} else {
