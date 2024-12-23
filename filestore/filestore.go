@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	BlockSize = 4096 * 1024
+	BlockSize = 4096 * 16
 )
 
 type FileStore struct {
@@ -23,7 +23,7 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
     }
 }
 
-func (fs FileStore) StoreBlockList(oids [] base.OID) (base.OID, error) {
+func (fs FileStore) StoreBlockList(oids [] base.BlockRef) (base.OID, error) {
 	// FIXME: should split large chunks
 
 	fmt.Println("OIDS to store", oids)
@@ -47,7 +47,7 @@ func (fs FileStore) StoreBlockList(oids [] base.OID) (base.OID, error) {
 }
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID, error) {
-	oids := make([]base.OID, 1)
+	oids := make([]base.BlockRef, 1)
 
 	buf := make([]byte, BlockSize)
 	for {
@@ -76,7 +76,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID,
 			}
 		}
 
-		oids = append(oids, k)
+		oids = append(oids, base.BlockRef{OID: k, Type: base.RefType_Blob})
 	}
 
 	return fs.StoreBlockList(oids)

@@ -2,33 +2,17 @@ syntax = "proto3";
 
 package wire;
 
-message OID {
-    bytes data = 1;
+enum RefType {
+    Blob = 0;
+    RefList = 1;
+}
+
+message BlockRef {
+    uint32 type = 1;
+    bytes data = 2;
 }
 
 message OIDRefList {
     string magic = 1;
-    repeated OID oids = 2;
+    repeated BlockRef refs = 2;
 }
-
-//message Person {
-//  string name = 1;
-//  int32 id = 2;  // Unique ID number for this person.
-//  string email = 3;
-//
-//  message PhoneNumber {
-//    string number = 1;
-//    PhoneType type = 2;
-//  }
-//
-//  repeated PhoneNumber phones = 4;
-//
-//  required google.protobuf.Timestamp last_updated = 5;
-//}
-
-//enum PhoneType {
-//  PHONE_TYPE_UNSPECIFIED = 0;
-//  PHONE_TYPE_MOBILE = 1;
-//  PHONE_TYPE_HOME = 2;
-//  PHONE_TYPE_WORK = 3;
-//}
