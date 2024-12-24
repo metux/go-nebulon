@@ -20,3 +20,7 @@ func (ref BlockRef) HexKey() string {
 func (ref BlockRef) OID() string {
 	return fmt.Sprintf("%X", ref.Key)
 }
+
+func (ref BlockRef) Dump() string {
+	return ref.HexKey()
+}

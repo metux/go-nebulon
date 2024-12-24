@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"io"
 )
 
@@ -20,6 +21,10 @@ func (s *ChainedReader) Read(p []byte) (n int, err error) {
 
 	s.Readers = s.Readers[1:]
 	return s.Read(p)
+}
+
+func (s *ChainedReader) AddBytes(p []byte) {
+	s.Readers = append(s.Readers, bytes.NewReader(p))
 }
 
 func NewChainedReader(arg ...io.Reader) io.Reader {

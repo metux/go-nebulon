@@ -104,6 +104,21 @@ type FileReader struct {
 	util.ChainedReader
 }
 
+// FIXME: need to support blocklist refs
+func (fs FileStore) readerAddRef(r * FileReader, ref wire.BlockRef) error {
+	data, err := fs.LoadBlock(ref)
+	if err != nil {
+		log.Printf("readerAddRef: failed reading block: %s\n", err)
+		return err
+	}
+	if ref.Type == wire.RefType_Blob {
+		r.AddBytes(data)
+	} else {
+		log.Printf("readerAddRef: unsupported ref type %+v\n", ref.Type)
+	}
+	return nil
+}
+
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
 	// load the index block
 	_, err := fs.LoadBlock(ref)
@@ -119,6 +134,11 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 
 	log.Printf("BLOCK REF LIST %+v\n", bl.Dump())
 	reader := FileReader{}
+
+	for idx, walk := range bl.Refs {
+		log.Printf("block ref ent %d -- %s\n", idx, walk.Dump())
+		fs.readerAddRef(&reader, *walk)
+	}
 
 	return &reader, nil, nil
 }

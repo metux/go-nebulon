@@ -13,6 +13,7 @@ GO ?= /usr/lib/go-1.22/bin/go
 
 run: get-deps gen-proto
 	$(GO) run $(GOTAGS) .
+	diff -ruN go-nebulon go-nebulon.tmp
 
 gen-proto:
 	protoc -I=. --go_out=. wire/nebulon.proto --go_opt="Mwire/nebulon.proto=./wire"
