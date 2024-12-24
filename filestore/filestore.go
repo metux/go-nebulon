@@ -105,7 +105,7 @@ type FileReader struct {
 }
 
 // FIXME: need to support blocklist refs
-func (fs FileStore) readerAddRef(r * FileReader, ref wire.BlockRef) error {
+func (fs FileStore) readerAddRef(reader * FileReader, ref wire.BlockRef) error {
 	data, err := fs.LoadBlock(ref)
 	if err != nil {
 		log.Printf("readerAddRef: failed reading block: %s\n", err)
@@ -114,9 +114,21 @@ func (fs FileStore) readerAddRef(r * FileReader, ref wire.BlockRef) error {
 
 	switch ref.Type {
 		case wire.RefType_Blob:
-			r.AddBytes(data)
+			reader.AddBytes(data)
 		case wire.RefType_RefList:
 			log.Printf("readerAddRef: unsupported reflist\n", ref.Type)
+
+			bl, err := fs.LoadBlockList(ref)
+			if err != nil {
+				log.Printf("readerAddFile: failed reading block list %s\n", err)
+				return err
+			}
+			log.Printf("BLOCK REF LIST %+v\n", bl.Dump())
+
+			for idx, walk := range bl.Refs {
+				log.Printf("block ref ent %d -- %s\n", idx, walk.Dump())
+				fs.readerAddRef(reader, *walk)
+			}
 		default:
 			log.Printf("readerAddRef: unsupported ref type %+v (default)\n", ref.Type)
 	}
@@ -132,21 +144,9 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 		return nil, nil, err
 	}
 
-	reader := FileReader{}
+	reader := &FileReader{}
 
-	fs.readerAddRef(&reader, ref)
+	fs.readerAddRef(reader, ref)
 
-	bl, err := fs.LoadBlockList(ref)
-	if err != nil {
-		log.Printf("ReadFile: failed reading block list %s\n", err)
-	}
-
-	log.Printf("BLOCK REF LIST %+v\n", bl.Dump())
-
-	for idx, walk := range bl.Refs {
-		log.Printf("block ref ent %d -- %s\n", idx, walk.Dump())
-		fs.readerAddRef(&reader, *walk)
-	}
-
-	return &reader, nil, nil
+	return reader, nil, nil
 }
