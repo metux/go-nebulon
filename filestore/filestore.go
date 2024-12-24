@@ -1,11 +1,11 @@
 package filestore
 
 import (
-	"io"
-	"log"
 	"fmt"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
+	"io"
+	"log"
 )
 
 const (
@@ -92,7 +92,6 @@ func (fs FileStore) StoreFileData(r io.Reader) (wire.BlockRefList, error) {
 		if err != nil {
 			return reflist, err
 		}
-
 		reflist.AddRef(ref)
 	}
 	return reflist, nil
