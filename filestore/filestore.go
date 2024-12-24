@@ -115,7 +115,7 @@ func (fs FileStore) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, err
 		new_reflist.AddRef(subref)
 	}
 
-	return fs.writeBlockRefList(new_reflist)
+	return fs.storeRefLists(new_reflist)
 }
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
