@@ -28,3 +28,8 @@ func (rl BlockRefList) Marshal() ([]byte, error) {
 	}
 	return proto.Marshal(&rl)
 }
+
+func (rl * BlockRefList) Unmarshal(data []byte) error {
+	err := proto.Unmarshal(data, rl)
+	return err
+}

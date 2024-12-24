@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
-	"google.golang.org/protobuf/proto"
 	"io"
 	"log"
 )
@@ -61,15 +60,9 @@ func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 		return reflist, err
 	}
 
-	err = proto.Unmarshal(data, &reflist)
-
-	if err != nil {
-		log.Printf("unmarshal failed: %s\n", err)
-		return reflist, err
-	}
-
-	log.Printf("marshal okay: num=%d\n", reflist.Count())
-	return reflist, nil
+	// note do it in separate steps, since reflist is changed here
+	err = reflist.Unmarshal(data)
+	return reflist, err
 }
 
 func (fs FileStore) StoreBlock(data []byte) (wire.BlockRef, error) {
