@@ -1,6 +1,7 @@
 package wire
 
 import (
+	"fmt"
 	"crypto/sha256"
 )
 
@@ -10,4 +11,8 @@ func RefForBlock(data []byte) BlockRef {
 		Type: RefType_Blob,
 		Data: d[:],
 	}
+}
+
+func RefToString(ref BlockRef) string {
+	return fmt.Sprintf("%X", ref.Data)
 }
