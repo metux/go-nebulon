@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	BlockSize     = 4096 * 16
+	BlockSize    = 4096 * 16
 	BlockListMax = 16
 )
 
