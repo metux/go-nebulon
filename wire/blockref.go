@@ -9,10 +9,10 @@ func RefForBlock(data []byte) BlockRef {
 	d := sha256.Sum256(data)
 	return BlockRef{
 		Type: RefType_Blob,
-		Data: d[:],
+		Key: d[:],
 	}
 }
 
-func RefToString(ref BlockRef) string {
-	return fmt.Sprintf("%X", ref.Data)
+func (ref BlockRef) HexKey() string {
+	return fmt.Sprintf("%X", ref.Key)
 }

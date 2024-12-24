@@ -1,7 +1,6 @@
 package blockstore
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,7 +20,7 @@ func NewStore(path string) base.BlockStore {
 }
 
 func (s Store) Ref2FN(ref wire.BlockRef) string {
-	return s.Path + "/" + fmt.Sprintf("%X", ref.Data)
+	return s.Path + "/" + ref.HexKey()
 }
 
 func (s Store) StoreBlock(data []byte) (wire.BlockRef, error) {
