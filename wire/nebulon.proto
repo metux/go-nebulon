@@ -12,7 +12,7 @@ enum CipherType {
 }
 
 message BlockRef {
-    uint32 type = 1;
+    RefType type = 1;
     bytes data = 2;
 }
 
@@ -22,7 +22,7 @@ message BlockRefKey {
     bytes key = 3;
 }
 
-message OIDRefList {
+message BlockRefList {
     string magic = 1;
     repeated BlockRef refs = 2;
 }

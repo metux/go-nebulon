@@ -3,8 +3,11 @@ package blockstore
 import (
 	"os"
 	"path/filepath"
+	"log"
+	"fmt"
 
 	"github.com/metux/go-nebulon/base"
+	"github.com/metux/go-nebulon/wire"
 )
 
 type Store struct {
@@ -17,18 +20,19 @@ func NewStore(path string) base.BlockStore {
 	}
 }
 
-func (s Store) OID2FN(k base.OID) string {
-	return s.Path + "/" + k.String()
+func (s Store) Ref2FN(ref wire.BlockRef) string {
+	return s.Path + "/" + fmt.Sprintf("%X", ref.Data)
 }
 
-func (s Store) StoreBlock(data []byte) (base.OID, error) {
-	k := base.OIDForBlock(data)
-	fn := s.OID2FN(k)
+func (s Store) StoreBlock(data []byte) (wire.BlockRef, error) {
+	ref := wire.RefForBlock(data)
+	fn := s.Ref2FN(ref)
+	log.Printf("Storing block as: %s\n", fn)
 	os.MkdirAll(filepath.Dir(fn), os.ModePerm)
 	err := os.WriteFile(fn, data, 0644)
-	return k, err
+	return ref, err
 }
 
-func (s Store) LoadBlock(k base.OID) ([] byte, error) {
-	return os.ReadFile(s.OID2FN(k))
+func (s Store) LoadBlock(ref wire.BlockRef) ([] byte, error) {
+	return os.ReadFile(s.Ref2FN(ref))
 }

@@ -1,6 +1,10 @@
 package base
 
+import (
+	"github.com/metux/go-nebulon/wire"
+)
+
 type BlockStore interface {
-	StoreBlock([]byte) (OID, error)
-	LoadBlock(OID) ([]byte, error)
+	StoreBlock([]byte) (wire.BlockRef, error)
+	LoadBlock(wire.BlockRef) ([]byte, error)
 }

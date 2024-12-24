@@ -6,8 +6,8 @@ import (
     "io"
     "fmt"
     "github.com/metux/go-nebulon/base"
-//    "github.com/metux/go-nebulon/wire"
-    "github.com/metux/go-nebulon/wireutil"
+    "github.com/metux/go-nebulon/wire"
+    "google.golang.org/protobuf/proto"
 )
 
 const (
@@ -24,16 +24,22 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
     }
 }
 
-func (fs FileStore) StoreBlockList(oids [] base.BlockRef) (base.OID, error) {
+func (fs FileStore) StoreBlockList(refs [] * wire.BlockRef) (wire.BlockRef, error) {
 	// FIXME: should split large chunks
 
-	fmt.Println("OIDS to store", oids)
-	fmt.Println("numer of OIDs", len(oids))
-	data, err := wireutil.MarshalOIDRefList(oids)
+	fmt.Println("OIDS to store", refs)
+	fmt.Println("numer of OIDs", len(refs))
+
+	reflist := wire.BlockRefList{
+		Magic: "BLOCK REF LIST",
+		Refs: refs,
+	}
+
+	data, err := proto.Marshal(&reflist)
 
 	if err != nil {
 		fmt.Println("marshal error: ", err)
-		return base.OID{}, err
+		return wire.BlockRef{}, err
 	}
 
 	fmt.Println(data)
@@ -51,8 +57,8 @@ func (fs FileStore) StoreBlockList(oids [] base.BlockRef) (base.OID, error) {
 //    k,_ := fs.BlockStore.StoreBlock(data)
 //}
 
-func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID, error) {
-	oids := make([]base.BlockRef, 1)
+func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+	oids := make([]*wire.BlockRef, 1)
 
 	buf := make([]byte, BlockSize)
 	for {
@@ -60,28 +66,28 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID,
 		if err != nil {
 			if err != io.EOF {
 				fmt.Println(err)
-				return base.OID{}, err
+				return wire.BlockRef{}, err
 			}
 			break
 		}
-		k,_ := fs.BlockStore.StoreBlock(buf[:readTotal])
-		for _, v := range k.Data {
+		ref,_ := fs.BlockStore.StoreBlock(buf[:readTotal])
+		for _, v := range ref.Data {
 			fmt.Printf("%d ", v)
 		}
 		fmt.Println("\n")
 
-		d,e := fs.BlockStore.LoadBlock(k)
+		d,e := fs.BlockStore.LoadBlock(ref)
 		if e != nil {
 			fmt.Printf("Read back error %s\n", e)
-			return base.OID{}, e
+			return wire.BlockRef{}, e
 		} else {
 			if !bytes.Equal(d, buf[:readTotal]) {
 				fmt.Printf("Read back failed - blocks not equal\n")
-				return base.OID{}, errors.New("Read back failed - blocks not equal")
+				return wire.BlockRef{}, errors.New("Read back failed - blocks not equal")
 			}
 		}
 
-		oids = append(oids, base.BlockRef{OID: k, Type: base.RefType_Blob})
+		oids = append(oids, &ref)
 	}
 
 	return fs.StoreBlockList(oids)
