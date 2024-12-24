@@ -16,7 +16,7 @@ func DecapOID(oid BlockRef) base.OID {
 func EncapOIDRefList(oids []base.BlockRef) OIDRefList {
 	l := make([]*BlockRef, len(oids))
 	for idx,ent := range oids {
-		l[idx] = EncapOID(ent)
+		l[idx] = &BlockRef{Data: ent.OID.Data, Type: uint32(ent.Type)}
 	}
 	return OIDRefList{Magic: "BLOCK REF LIST", Refs: l}
 }
