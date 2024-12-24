@@ -22,3 +22,11 @@ message BlockRefList {
     string magic = 1;
     repeated BlockRef refs = 2;
 }
+
+message FileHead {
+    string magic = 1;
+    BlockRef content = 2;
+    BlockRef headers = 3;
+    BlockRef graph = 4;         // for encrypted files: publicly visible references, used for GC
+    bool encrypted = 5;         // when encrytped, both content and headers are encrypted
+}
