@@ -75,7 +75,7 @@ func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	return data, err
 }
 
-func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+func (fs FileStore) StoreFileData(r io.Reader) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 	buf := make([]byte, BlockSize)
 	for {
@@ -83,18 +83,25 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		if err != nil {
 			if err != io.EOF {
 				fmt.Println(err)
-				return wire.BlockRef{}, err
+				return reflist, err
 			}
 			break
 		}
 		ref, err := fs.StoreBlock(buf[:readTotal])
 		if err != nil {
-			return wire.BlockRef{}, err
+			return reflist, err
 		}
 
 		reflist.AddRef(ref)
 	}
+	return reflist, nil
+}
 
+func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+	reflist, err := fs.StoreFileData(r)
+	if err != nil {
+		return wire.BlockRef{}, err
+	}
 	return fs.StoreBlockList(reflist.Refs)
 }
 
