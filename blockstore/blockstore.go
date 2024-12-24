@@ -1,7 +1,6 @@
 package blockstore
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 
@@ -26,8 +25,6 @@ func (s SimpleStore) Ref2FN(ref wire.BlockRef) string {
 func (s SimpleStore) StoreBlock(data []byte) (wire.BlockRef, error) {
 	ref := wire.RefForBlock(data)
 	fn := s.Ref2FN(ref)
-	log.Printf("OID = %s\n", ref.String())
-	log.Printf("Storing block as: %s\n", fn)
 	os.MkdirAll(filepath.Dir(fn), os.ModePerm)
 	err := os.WriteFile(fn, data, 0644)
 	return ref, err
