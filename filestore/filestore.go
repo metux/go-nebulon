@@ -46,6 +46,10 @@ func (fs FileStore) StoreBlockList(oids [] base.BlockRef) (base.OID, error) {
 	return oid, err
 }
 
+//func (fs FileStore) StoreBlock(date [] byte) (base.Ref) {
+//    k,_ := fs.BlockStore.StoreBlock(data)
+//}
+
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (base.OID, error) {
 	oids := make([]base.BlockRef, 1)
 

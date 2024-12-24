@@ -7,9 +7,19 @@ enum RefType {
     RefList = 1;
 }
 
+enum CipherType {
+    Dummy = 0;
+}
+
 message BlockRef {
     uint32 type = 1;
     bytes data = 2;
+}
+
+message BlockRefKey {
+    BlockRef block = 1;
+    CipherType cipher = 2;
+    bytes key = 3;
 }
 
 message OIDRefList {

@@ -12,4 +12,5 @@ const (
 type BlockRef struct {
     OID OID
     Type RefType
+    Key [] byte
 }
