@@ -5,11 +5,11 @@ import (
 )
 
 // dummy
-func EncryptBlock(data [] byte) (byte[], byte[]) {
+func EncryptBlock(data []byte) ([]byte, []byte) {
 	sha := sha256.Sum256(data)
 	return data, sha
 }
 
-func DecryptBlock(data [] byte, key [] byte) [] byte {
+func DecryptBlock(data []byte, key []byte) []byte {
 	return data
 }

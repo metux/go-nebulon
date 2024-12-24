@@ -1,10 +1,10 @@
 package blockstore
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
-	"log"
-	"fmt"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
@@ -33,6 +33,6 @@ func (s Store) StoreBlock(data []byte) (wire.BlockRef, error) {
 	return ref, err
 }
 
-func (s Store) LoadBlock(ref wire.BlockRef) ([] byte, error) {
+func (s Store) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	return os.ReadFile(s.Ref2FN(ref))
 }

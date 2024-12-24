@@ -5,12 +5,12 @@ package base
 type RefType uint32
 
 const (
-    RefType_Blob = RefType(0)
-    RefType_RefList = RefType(1)
+	RefType_Blob    = RefType(0)
+	RefType_RefList = RefType(1)
 )
 
 type BlockRef struct {
-    OID OID
-    Type RefType
-    Key [] byte
+	OID  OID
+	Type RefType
+	Key  []byte
 }

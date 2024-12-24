@@ -1,9 +1,9 @@
 package helpers
 
 import (
-	"os"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
+	"os"
 )
 
 func StoreFile(fs base.FileStore, hdr map[string]string, fn string) (wire.BlockRef, error) {

@@ -1,12 +1,12 @@
 package wire
 
 import (
-    "crypto/sha256"
+	"crypto/sha256"
 )
 
 func RefForBlock(data []byte) BlockRef {
 	d := sha256.Sum256(data)
-	return BlockRef {
+	return BlockRef{
 		Type: RefType_Blob,
 		Data: d[:],
 	}

@@ -1,13 +1,12 @@
 package filestore
 
 import (
-    "errors"
-    "bytes"
-    "io"
-    "fmt"
-    "github.com/metux/go-nebulon/base"
-    "github.com/metux/go-nebulon/wire"
-    "google.golang.org/protobuf/proto"
+	"fmt"
+	"github.com/metux/go-nebulon/base"
+	"github.com/metux/go-nebulon/wire"
+	"google.golang.org/protobuf/proto"
+	"io"
+	"log"
 )
 
 const (
@@ -19,12 +18,12 @@ type FileStore struct {
 }
 
 func NewFileStore(bs base.BlockStore) base.FileStore {
-    return FileStore {
-	BlockStore: bs,
-    }
+	return FileStore{
+		BlockStore: bs,
+	}
 }
 
-func (fs FileStore) StoreBlockList(refs [] * wire.BlockRef) (wire.BlockRef, error) {
+func (fs FileStore) StoreBlockList(refs []*wire.BlockRef) (wire.BlockRef, error) {
 	// FIXME: should split large chunks
 
 	fmt.Println("OIDS to store", refs)
@@ -32,7 +31,7 @@ func (fs FileStore) StoreBlockList(refs [] * wire.BlockRef) (wire.BlockRef, erro
 
 	reflist := wire.BlockRefList{
 		Magic: "BLOCK REF LIST",
-		Refs: refs,
+		Refs:  refs,
 	}
 
 	data, err := proto.Marshal(&reflist)
@@ -53,9 +52,21 @@ func (fs FileStore) StoreBlockList(refs [] * wire.BlockRef) (wire.BlockRef, erro
 	return oid, err
 }
 
-//func (fs FileStore) StoreBlock(date [] byte) (base.Ref) {
-//    k,_ := fs.BlockStore.StoreBlock(data)
-//}
+func (fs FileStore) LoadBlockList(ref wire.BlockRef) ([]*wire.BlockRef, error) {
+	return make([]*wire.BlockRef, 0), nil
+}
+
+func (fs FileStore) StoreBlock(data []byte) (wire.BlockRef, error) {
+	// FIXME: need to encrypt
+	ref, err := fs.BlockStore.StoreBlock(data)
+	return ref, err
+}
+
+func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
+	// FIXME: need to decrypt
+	data, err := fs.BlockStore.LoadBlock(ref)
+	return data, err
+}
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	oids := make([]*wire.BlockRef, 1)
@@ -70,21 +81,10 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 			}
 			break
 		}
-		ref,_ := fs.BlockStore.StoreBlock(buf[:readTotal])
-		for _, v := range ref.Data {
-			fmt.Printf("%d ", v)
-		}
-		fmt.Println("\n")
-
-		d,e := fs.BlockStore.LoadBlock(ref)
-		if e != nil {
-			fmt.Printf("Read back error %s\n", e)
-			return wire.BlockRef{}, e
-		} else {
-			if !bytes.Equal(d, buf[:readTotal]) {
-				fmt.Printf("Read back failed - blocks not equal\n")
-				return wire.BlockRef{}, errors.New("Read back failed - blocks not equal")
-			}
+		ref, err := fs.StoreBlock(buf[:readTotal])
+		if err != nil {
+			log.Println("StoreBlock error", err)
+			return wire.BlockRef{}, err
 		}
 
 		oids = append(oids, &ref)
@@ -94,5 +94,12 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 }
 
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
-    return nil, nil, nil
+	// load the index block
+	_, err := fs.LoadBlock(ref)
+	if err != nil {
+		log.Printf("ReadFile: error: %s\n", err)
+		return nil, nil, err
+	}
+
+	return nil, nil, nil
 }

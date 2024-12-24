@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/metux/go-nebulon/filestore"
 	"github.com/metux/go-nebulon/blockstore"
+	"github.com/metux/go-nebulon/filestore"
 	"github.com/metux/go-nebulon/helpers"
 )
 
