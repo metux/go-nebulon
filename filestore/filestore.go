@@ -10,7 +10,7 @@ import (
 
 const (
 	BlockSize     = 4096 * 16
-	BlockListSize = 16
+	BlockListMax = 16
 )
 
 type FileStore struct {
@@ -99,23 +99,30 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		return wire.BlockRef{}, err
 	}
 
-	l := reflist.Count()
-	log.Printf("reflist len=%d\n", l)
-
-	if reflist.Count() <= BlockListSize {
+	if reflist.Count() <= BlockListMax {
 		return fs.StoreBlockList(reflist)
-	}
-/*
-	for reflist.Count() > BlockListSize {
-		sub := reflist.Refs[:BlockListSize]
-		fmt.Println("len", len(sub))
-		reflist.Refs = reflist.Refs[BlockListSize:]
 	}
 
 	new_reflist := wire.BlockRefList{}
-	log.Printf("need to split reflist\n", new_reflist)
-*/
-	return fs.StoreBlockList(reflist)
+	for reflist.Count() > BlockListMax {
+		sub := wire.BlockRefList{Refs: reflist.Refs[:BlockListMax]}
+		subref, err := fs.StoreBlockList(sub)
+		if err != nil {
+			return wire.BlockRef{}, err
+		}
+		new_reflist.AddRef(subref)
+		reflist.Refs = reflist.Refs[BlockListMax:]
+	}
+
+	if reflist.Count() > 0 {
+		subref, err := fs.StoreBlockList(reflist)
+		if err != nil {
+			return wire.BlockRef{}, err
+		}
+		new_reflist.AddRef(subref)
+	}
+
+	return fs.StoreBlockList(new_reflist)
 }
 
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
