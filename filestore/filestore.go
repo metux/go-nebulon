@@ -25,13 +25,12 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 func (fs FileStore) StoreBlockList(refs []*wire.BlockRef) (wire.BlockRef, error) {
 	// FIXME: should split large chunks
 
-	fmt.Println("OIDS to store", refs)
-
 	reflist := wire.BlockRefList{
 		Refs: refs,
 	}
 
 	fmt.Println("number of ref entries", reflist.Count())
+	fmt.Printf("Storing block list: %s\n", reflist.Dump())
 	data, err := reflist.Marshal()
 
 	if err != nil {
@@ -50,6 +49,7 @@ func (fs FileStore) StoreBlockList(refs []*wire.BlockRef) (wire.BlockRef, error)
 	return oid, err
 }
 
+// FIXME: support encryption
 func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 
@@ -115,6 +115,6 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 		log.Printf("ReadFile: failed reading block list %s\n", err)
 	}
 
-	log.Printf("BLOCK REF LIST %+v\n", bl)
+	log.Printf("BLOCK REF LIST %+v\n", bl.Dump())
 	return nil, nil, nil
 }
