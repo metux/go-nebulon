@@ -34,3 +34,7 @@ func (rl * BlockRefList) Unmarshal(data []byte) error {
 	err := proto.Unmarshal(data, rl)
 	return err
 }
+
+func (rl * BlockRefList) AddRef(ref BlockRef) {
+	rl.Refs = append(rl.Refs, &ref)
+}
