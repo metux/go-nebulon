@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	fs := filestore.NewFileStore(blockstore.NewStore(".storedata"))
+	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 	oid, err := helpers.StoreFile(fs, map[string]string{}, "go-nebulon")
 
 	if err != nil {

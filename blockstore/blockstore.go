@@ -9,29 +9,30 @@ import (
 	"github.com/metux/go-nebulon/wire"
 )
 
-type Store struct {
+type SimpleStore struct {
 	Path string
 }
 
-func NewStore(path string) base.BlockStore {
-	return Store{
+func NewSimpleStore(path string) base.BlockStore {
+	return SimpleStore{
 		Path: path,
 	}
 }
 
-func (s Store) Ref2FN(ref wire.BlockRef) string {
-	return s.Path + "/" + ref.HexKey()
+func (s SimpleStore) Ref2FN(ref wire.BlockRef) string {
+	return s.Path + "/" + ref.OID()
 }
 
-func (s Store) StoreBlock(data []byte) (wire.BlockRef, error) {
+func (s SimpleStore) StoreBlock(data []byte) (wire.BlockRef, error) {
 	ref := wire.RefForBlock(data)
 	fn := s.Ref2FN(ref)
+	log.Printf("OID = %s\n", ref.String())
 	log.Printf("Storing block as: %s\n", fn)
 	os.MkdirAll(filepath.Dir(fn), os.ModePerm)
 	err := os.WriteFile(fn, data, 0644)
 	return ref, err
 }
 
-func (s Store) LoadBlock(ref wire.BlockRef) ([]byte, error) {
+func (s SimpleStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	return os.ReadFile(s.Ref2FN(ref))
 }
