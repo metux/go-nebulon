@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"os"
+
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockstore"
 	"github.com/metux/go-nebulon/filestore"
 	"github.com/metux/go-nebulon/helpers"
 	"github.com/metux/go-nebulon/wire"
-	"io"
-	"log"
-	"os"
 )
 
 var fs base.FileStore
