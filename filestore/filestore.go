@@ -27,7 +27,7 @@ func (fs FileStore) StoreBlockList(refs []*wire.BlockRef) (wire.BlockRef, error)
 	// FIXME: should split large chunks
 
 	fmt.Println("OIDS to store", refs)
-	fmt.Println("numer of OIDs", len(refs))
+	fmt.Println("number of OIDs", len(refs))
 
 	reflist := wire.BlockRefList{
 		Magic: "BLOCK REF LIST",
@@ -101,5 +101,16 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 		return nil, nil, err
 	}
 
+	bl, err := fs.LoadBlockList(ref)
+	if err != nil {
+		log.Printf("ReadFile: failed reading block list %s\n", err)
+	}
+
+	log.Printf("%+v\n", bl)
+	if bl == nil {
+		log.Printf("ReadFile: no block list\n")
+	} else {
+		log.Printf("ReadFile: got block list\n")
+	}
 	return nil, nil, nil
 }

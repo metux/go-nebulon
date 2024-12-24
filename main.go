@@ -14,5 +14,17 @@ func main() {
 	if err != nil {
 		fmt.Printf("ERROR %s\n", err)
 	}
-	fmt.Printf("OID %s\n", oid)
+	fmt.Printf("OID %s\n", oid.HexKey())
+
+	reader, headers, err := fs.ReadFile(oid)
+
+	if reader != nil {
+		fmt.Printf("got reader\n")
+	}
+	if headers != nil {
+		fmt.Printf("got headers\n")
+	}
+	if err != nil {
+		fmt.Printf("ERR %s\n", err)
+	}
 }
