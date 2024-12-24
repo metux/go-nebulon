@@ -23,12 +23,8 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 	}
 }
 
-func (fs FileStore) StoreBlockList(refs []*wire.BlockRef) (wire.BlockRef, error) {
+func (fs FileStore) StoreBlockList(reflist wire.BlockRefList) (wire.BlockRef, error) {
 	// FIXME: should split large chunks
-
-	reflist := wire.BlockRefList{
-		Refs: refs,
-	}
 
 	log.Printf("Storing block list: %s\n", reflist.Dump())
 	data, err := reflist.Marshal()
@@ -106,7 +102,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	l := reflist.Count()
 
 	log.Println("reflist len=%d\n", l)
-	return fs.StoreBlockList(reflist.Refs)
+	return fs.StoreBlockList(reflist)
 }
 
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
