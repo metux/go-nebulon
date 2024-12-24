@@ -121,7 +121,10 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 	reader := &FileReader{
 		fs: fs,
 	}
-	reader.AddRef(ref)
+
+	if err = reader.AddRef(ref); err != nil {
+		return nil, nil, err
+	}
 
 	return reader, nil, nil
 }
