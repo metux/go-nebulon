@@ -32,7 +32,7 @@ func getFile(fn string, ref wire.BlockRef) {
 	}
 	defer newf.Close()
 
-	buf := make([]byte, 128)
+	buf := make([]byte, 1024)
 	for {
 		readTotal, err := reader.Read(buf)
 		if err != nil {
