@@ -93,6 +93,6 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	return fs.StoreBlockList(oids)
 }
 
-func (fs FileStore) ReadFile(oid base.OID) (io.Reader, map[string]string, error) {
+func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
     return nil, nil, nil
 }
