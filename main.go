@@ -26,7 +26,6 @@ func getFile(fn string, ref wire.BlockRef) {
 		panic(fmt.Sprintf("open reader failed: %s", err))
 	}
 
-	log.Printf("got reader\n")
 	newf, err := os.Create(fn)
 	if err != nil {
 		panic(fmt.Sprintf("open write temp file failed: %s", err))
@@ -42,15 +41,11 @@ func getFile(fn string, ref wire.BlockRef) {
 			}
 			break
 		}
-		log.Printf("writing %d bytes\n", readTotal)
-
-		n, err := newf.Write(buf[:readTotal])
+		_, err = newf.Write(buf[:readTotal])
 		if err != nil {
 			log.Printf("writing failed: %s\n", err)
 		}
-		log.Printf("written: %d\n", n)
 	}
-	log.Printf("finished\n");
 }
 
 func main() {
