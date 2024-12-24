@@ -10,7 +10,7 @@ import (
 
 const (
 	BlockSize    = 4096 * 16
-	BlockListMax = 16
+	BlockListMax = 4
 )
 
 type FileStore struct {
@@ -24,7 +24,6 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 }
 
 func (fs FileStore) writeBlockRefList(reflist wire.BlockRefList) (wire.BlockRef, error) {
-	log.Printf("Storing block list: %s\n", reflist.Dump())
 	data, err := reflist.Marshal()
 
 	if err != nil {
@@ -137,7 +136,6 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 	// load the index block
 	_, err := fs.LoadBlock(ref)
 	if err != nil {
-		log.Printf("ReadFile: error: %s\n", err)
 		return nil, nil, err
 	}
 
