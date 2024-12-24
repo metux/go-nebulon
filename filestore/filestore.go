@@ -10,6 +10,7 @@ import (
 
 const (
 	BlockSize = 4096 * 16
+	BlockListSize = 32
 )
 
 type FileStore struct {
@@ -102,6 +103,10 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	if err != nil {
 		return wire.BlockRef{}, err
 	}
+
+	l := reflist.Count()
+
+	log.Println("reflist len=%d\n", l)
 	return fs.StoreBlockList(reflist.Refs)
 }
 
