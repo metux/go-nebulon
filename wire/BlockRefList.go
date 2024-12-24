@@ -2,8 +2,8 @@ package wire
 
 import (
 	"fmt"
-	"strings"
 	"google.golang.org/protobuf/proto"
+	"strings"
 )
 
 func (rl BlockRefList) Dump() string {
@@ -30,11 +30,11 @@ func (rl BlockRefList) Marshal() ([]byte, error) {
 	return proto.Marshal(&rl)
 }
 
-func (rl * BlockRefList) Unmarshal(data []byte) error {
+func (rl *BlockRefList) Unmarshal(data []byte) error {
 	err := proto.Unmarshal(data, rl)
 	return err
 }
 
-func (rl * BlockRefList) AddRef(ref BlockRef) {
+func (rl *BlockRefList) AddRef(ref BlockRef) {
 	rl.Refs = append(rl.Refs, &ref)
 }
