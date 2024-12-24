@@ -1,11 +1,11 @@
 package filestore
 
 import (
+	"io"
+	"log"
 	"fmt"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
-	"io"
-	"log"
 )
 
 const (
