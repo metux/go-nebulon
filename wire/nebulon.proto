@@ -14,12 +14,8 @@ enum CipherType {
 message BlockRef {
     RefType type = 1;
     bytes oid = 2;
-}
-
-message BlockRefKey {
-    BlockRef block = 1;
-    CipherType cipher = 2;
-    bytes key = 3;
+    CipherType cipher = 3;
+    bytes key = 4;
 }
 
 message BlockRefList {
