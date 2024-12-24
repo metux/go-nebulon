@@ -13,7 +13,7 @@ enum CipherType {
 
 message BlockRef {
     RefType type = 1;
-    bytes key = 2;
+    bytes oid = 2;
 }
 
 message BlockRefKey {
