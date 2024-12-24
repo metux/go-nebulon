@@ -27,14 +27,13 @@ func (fs FileStore) StoreBlockList(refs []*wire.BlockRef) (wire.BlockRef, error)
 	// FIXME: should split large chunks
 
 	fmt.Println("OIDS to store", refs)
-	fmt.Println("number of OIDs", len(refs))
 
 	reflist := wire.BlockRefList{
-		Magic: "BLOCK REF LIST",
-		Refs:  refs,
+		Refs: refs,
 	}
 
-	data, err := proto.Marshal(&reflist)
+	fmt.Println("number of ref entries", reflist.Count())
+	data, err := reflist.Marshal()
 
 	if err != nil {
 		fmt.Println("marshal error: ", err)
@@ -52,8 +51,25 @@ func (fs FileStore) StoreBlockList(refs []*wire.BlockRef) (wire.BlockRef, error)
 	return oid, err
 }
 
-func (fs FileStore) LoadBlockList(ref wire.BlockRef) ([]*wire.BlockRef, error) {
-	return make([]*wire.BlockRef, 0), nil
+func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
+	reflist := wire.BlockRefList{}
+
+	data, err := fs.BlockStore.LoadBlock(ref)
+
+	if err != nil {
+		log.Printf("failed loading blocklist block: %s\n", err)
+		return reflist, err
+	}
+
+	err = proto.Unmarshal(data, &reflist)
+
+	if err != nil {
+		log.Printf("unmarshal failed: %s\n", err)
+		return reflist, err
+	}
+
+	log.Printf("marshal okay: num=%d\n", reflist.Count())
+	return reflist, nil
 }
 
 func (fs FileStore) StoreBlock(data []byte) (wire.BlockRef, error) {
@@ -106,11 +122,6 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 		log.Printf("ReadFile: failed reading block list %s\n", err)
 	}
 
-	log.Printf("%+v\n", bl)
-	if bl == nil {
-		log.Printf("ReadFile: no block list\n")
-	} else {
-		log.Printf("ReadFile: got block list\n")
-	}
+	log.Printf("BLOCK REF LIST %+v\n", bl)
 	return nil, nil, nil
 }
