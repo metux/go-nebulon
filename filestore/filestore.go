@@ -2,6 +2,7 @@ package filestore
 
 import (
 	"fmt"
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
 	"io"
@@ -99,6 +100,10 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	return fs.StoreBlockList(oids)
 }
 
+type FileReader struct {
+	util.ChainedReader
+}
+
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
 	// load the index block
 	_, err := fs.LoadBlock(ref)
@@ -113,5 +118,7 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 	}
 
 	log.Printf("BLOCK REF LIST %+v\n", bl.Dump())
-	return nil, nil, nil
+	reader := FileReader{}
+
+	return &reader, nil, nil
 }
