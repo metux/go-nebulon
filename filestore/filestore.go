@@ -91,12 +91,7 @@ func (fs FileStore) StoreFileData(r io.Reader) (wire.BlockRefList, error) {
 	return reflist, nil
 }
 
-func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
-	reflist, err := fs.StoreFileData(r)
-	if err != nil {
-		return wire.BlockRef{}, err
-	}
-
+func (fs FileStore) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, error) {
 	if reflist.Count() <= BlockListMax {
 		return fs.writeBlockRefList(reflist)
 	}
@@ -121,6 +116,21 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	}
 
 	return fs.writeBlockRefList(new_reflist)
+}
+
+func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+	reflist, err := fs.StoreFileData(r)
+	if err != nil {
+		return wire.BlockRef{}, err
+	}
+
+	ref, err := fs.storeRefLists(reflist)
+	if err != nil {
+		log.Printf("storeRefLists() error %s\n", err)
+		return wire.BlockRef{}, err
+	}
+
+	return ref, nil
 }
 
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
