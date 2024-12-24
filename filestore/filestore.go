@@ -29,23 +29,21 @@ func (fs FileStore) StoreBlockList(refs []*wire.BlockRef) (wire.BlockRef, error)
 		Refs: refs,
 	}
 
-	fmt.Println("number of ref entries", reflist.Count())
-	fmt.Printf("Storing block list: %s\n", reflist.Dump())
+	log.Printf("Storing block list: %s\n", reflist.Dump())
 	data, err := reflist.Marshal()
 
 	if err != nil {
-		fmt.Println("marshal error: ", err)
+		log.Println("marshal error: ", err)
 		return wire.BlockRef{}, err
 	}
 
-	fmt.Println(data)
-
 	oid, err := fs.BlockStore.StoreBlock(data)
 	if err != nil {
-		fmt.Println("error storing reflist block", err)
+		log.Println("error storing reflist block", err)
 		return oid, err
 	}
 
+	oid.Type = wire.RefType_RefList
 	return oid, err
 }
 
@@ -78,7 +76,7 @@ func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 }
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
-	oids := make([]*wire.BlockRef, 1)
+	oids := make([]*wire.BlockRef, 0)
 
 	buf := make([]byte, BlockSize)
 	for {
@@ -92,7 +90,6 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		}
 		ref, err := fs.StoreBlock(buf[:readTotal])
 		if err != nil {
-			log.Println("StoreBlock error", err)
 			return wire.BlockRef{}, err
 		}
 

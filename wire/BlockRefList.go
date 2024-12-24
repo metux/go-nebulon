@@ -1,6 +1,7 @@
 package wire
 
 import (
+	"fmt"
 	"strings"
 	"google.golang.org/protobuf/proto"
 )
@@ -14,7 +15,7 @@ func (rl BlockRefList) Dump() string {
 			s = append(s, walk.HexKey())
 		}
 	}
-	return strings.Join(s, " ")
+	return fmt.Sprintf("(%d) %s", len(rl.Refs), strings.Join(s, " "))
 }
 
 func (rl BlockRefList) Count() int {

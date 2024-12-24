@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"fmt"
 	"github.com/metux/go-nebulon/blockstore"
 	"github.com/metux/go-nebulon/filestore"
@@ -14,7 +15,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("ERROR %s\n", err)
 	}
-	fmt.Printf("OID %s\n", oid.HexKey())
+	log.Printf("Stored file ref %s\n", oid.HexKey())
 
 	reader, headers, err := fs.ReadFile(oid)
 
