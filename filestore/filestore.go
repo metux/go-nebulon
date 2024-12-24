@@ -6,7 +6,8 @@ import (
     "io"
     "fmt"
     "github.com/metux/go-nebulon/base"
-    "github.com/metux/go-nebulon/wire"
+//    "github.com/metux/go-nebulon/wire"
+    "github.com/metux/go-nebulon/wireutil"
 )
 
 const (
@@ -28,7 +29,7 @@ func (fs FileStore) StoreBlockList(oids [] base.BlockRef) (base.OID, error) {
 
 	fmt.Println("OIDS to store", oids)
 	fmt.Println("numer of OIDs", len(oids))
-	data, err := wire.MarshalOIDRefList(oids)
+	data, err := wireutil.MarshalOIDRefList(oids)
 
 	if err != nil {
 		fmt.Println("marshal error: ", err)
