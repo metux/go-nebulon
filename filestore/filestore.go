@@ -194,11 +194,10 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		return content_ref, nil
 	}
 
-//	log.Printf("key=%X encr=%X\n", key, encrypted)
-
 	// fixme: must drop the key from content the ref !
 	filehead := wire.FileHead{
-		Content: &content_ref,
+// need to create public graph
+//		Content: &content_ref,
 		Private: encrypted,
 	}
 	filehead_bin, err := filehead.Marshal()
@@ -236,22 +235,22 @@ func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, e
 	filehead := wire.FileHead{}
 	filehead.Unmarshal(filehead_bin)
 
-	fctrl_bin, _ := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, filehead.Private)
+	fctrl_bin, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, filehead.Private)
+	if err != nil {
+		log.Printf("error decrypting fctrl: %s\n", err)
+		return nil, nil, err
+	}
 
 	fctrl := wire.FileControl{}
 	fctrl.Unmarshal(fctrl_bin)
 
-	content_ref := fctrl.Content
-	log.Printf("ReadFile oid=%s:%s:%X key=%X\n", content_ref.Type, content_ref.Cipher, content_ref.Oid, content_ref.Key)
-
-//	fctrl := wire.FileControl{}
-//	err := fctrl.Unmarshal(filehead.Private)
+	log.Printf("ReadFile content %s\n", fctrl.Content.Dump())
 
 	reader := &FileReader{
 		fs: fs,
 	}
 
-	if err = reader.AddRef(*content_ref); err != nil {
+	if err = reader.AddRef(*fctrl.Content); err != nil {
 		return nil, nil, err
 	}
 

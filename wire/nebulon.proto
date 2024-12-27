@@ -29,8 +29,6 @@ message BlockRefList {
 
 message FileHead {
     string magic = 1;
-    BlockRef content = 2;
-    BlockRef headers = 3;
     BlockRef graph = 4;         // for encrypted files: publicly visible references, used for GC
     bytes private = 5;
 }
