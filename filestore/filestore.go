@@ -152,6 +152,27 @@ func (fs FileStore) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, err
 	return fs.storeRefLists(new_reflist)
 }
 
+func (fs FileStore) encodeFileControl(content_ref wire.BlockRef) ([]byte, []byte, error) {
+
+	// fixme: add headers
+	fctrl := wire.FileControl{
+		Content: &content_ref,
+	}
+	data, err := fctrl.Marshal()
+	if err != nil {
+		log.Printf("failed marshalling fctrl: %s\n", err)
+		return []byte{}, []byte{}, err
+	}
+
+	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
+	if err != nil {
+		log.Printf("failed encrypting fctrl: %s\n", err)
+		return []byte{}, []byte{}, err
+	}
+
+	return key, encrypted, nil
+}
+
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	reflist, err := fs.storeFileData(r)
 	if err != nil {
@@ -167,18 +188,9 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	log.Printf("StoreFile: Content ref: %s\n", content_ref.Dump())
 
 	// fixme: add headers
-	fctrl := wire.FileControl{
-		Content: &content_ref,
-	}
-	fctrl_bin, err := fctrl.Marshal()
-	if err != nil {
-		log.Printf("failed marshalling fctrl: %s\n", err)
-		return content_ref, nil
-	}
+	key, encrypted, err := fs.encodeFileControl(content_ref)
 
-	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, fctrl_bin)
 	if err != nil {
-		log.Printf("failed encrypting fctrl: %s\n", err)
 		return content_ref, nil
 	}
 
