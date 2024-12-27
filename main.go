@@ -49,7 +49,7 @@ func getFile(fn string, ref wire.BlockRef) {
 
 const (
 	filename string = "/home/nekrad/dl/000.capture/belle0/belle_camile-2024-12-26-23-52-38.P00.mkv.00.mux.mp4"
-	tempfile string "test1.tmp"
+	tempfile string = "test1.tmp"
 )
 
 func main() {
