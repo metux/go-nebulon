@@ -158,13 +158,20 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		return wire.BlockRef{}, err
 	}
 
-	ref, err := fs.storeRefLists(reflist)
+	content_ref, err := fs.storeRefLists(reflist)
 	if err != nil {
 		log.Printf("storeRefLists() error %s\n", err)
 		return wire.BlockRef{}, err
 	}
 
-	return ref, nil
+	// fixme: must drop the key from content the ref !
+	filehead := wire.FileHead{
+		Content: &content_ref,
+	}
+
+	log.Printf("file head: %+v\n", filehead)
+
+	return content_ref, nil
 }
 
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
