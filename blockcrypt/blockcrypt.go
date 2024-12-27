@@ -5,7 +5,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/sha256"
+	"fmt"
 	"log"
+
+	"github.com/metux/go-nebulon/wire"
 )
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
@@ -53,7 +56,7 @@ func IvFromKey(key []byte) []byte {
 	return hashed[:aes.BlockSize]
 }
 
-func EncryptBlock(data []byte) ([]byte, []byte, error) {
+func AESEncryptBlock(data []byte) ([]byte, []byte, error) {
 	key := Hash(data)
 	iv := IvFromKey(key)
 
@@ -65,7 +68,7 @@ func EncryptBlock(data []byte) ([]byte, []byte, error) {
 	return encrypted, key, nil
 }
 
-func DecryptBlock(data []byte, key []byte) []byte {
+func AESDecryptBlock(data []byte, key []byte) []byte {
 	iv := IvFromKey(key)
 
 	data, err := AES256Decrypt(data, key, iv)
@@ -73,4 +76,15 @@ func DecryptBlock(data []byte, key []byte) []byte {
 		panic(err)
 	}
 	return data
+}
+
+func BlockDecrypt(cipher wire.CipherType, key [] byte, data [] byte) ([]byte, error) {
+	switch (cipher) {
+		case wire.CipherType_None:
+			return data, nil
+		case wire.CipherType_AES_CBC:
+			return AESDecryptBlock(data, key), nil
+		default:
+			return []byte{}, fmt.Errorf("unsupported cipher type: %s\n", cipher)
+	}
 }
