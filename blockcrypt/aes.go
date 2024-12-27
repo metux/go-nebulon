@@ -50,14 +50,8 @@ func AESEncryptBlock(data []byte) ([]byte, []byte, error) {
 	return encrypted, key, nil
 }
 
-func AESDecryptBlock(data []byte, key []byte) []byte {
-	iv := ivFromKey(key)
-
-	data, err := aes256Decrypt(data, key, iv)
-	if err != nil {
-		panic(err)
-	}
-	return data
+func AESDecryptBlock(data []byte, key []byte) ([]byte, error) {
+	return aes256Decrypt(data, key, ivFromKey(key))
 }
 
 func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, error) {
@@ -71,17 +65,21 @@ func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, error) {
 	return AESEncryptBlock(compressed)
 }
 
-func AES_ZSTD_Decrypt(data []byte, key []byte) []byte {
-	decrypted := AESDecryptBlock(data, key)
+func AES_ZSTD_Decrypt(data []byte, key []byte) ([]byte, error) {
+	decrypted, err := AESDecryptBlock(data, key)
+	if err != nil {
+		return []byte{}, err
+	}
+
 	reader, err := zstd.NewReader(nil)
 	if err != nil {
 		log.Printf("AES_ZSTD_Decrypt() failed creating reader: %s\n", err)
-		return []byte{}
+		return []byte{}, err
 	}
 	decoded, err := reader.DecodeAll(decrypted, make([]byte, 0, len(data)))
 	if err != nil {
 		log.Printf("AES_ZSTD_Decrypt() failed decompressing %s\n", err)
-		return decoded
+		return decoded, err
 	}
-	return decoded
+	return decoded, nil
 }
