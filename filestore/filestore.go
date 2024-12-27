@@ -58,6 +58,9 @@ func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 }
 
 func (fs FileStore) StoreBlock(data []byte) (wire.BlockRef, error) {
+	
+
+
 	// FIXME: need to encrypt
 	ref, err := fs.BlockStore.StoreBlock(data)
 	return ref, err

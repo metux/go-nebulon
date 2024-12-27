@@ -49,6 +49,7 @@ func Ase256Decode(cypted [] byte, key [] byte, iv [] byte) ([]byte) {
 	return PKCS5UnPadding(decrypted)
 }
 
+// FIXME: generate the IV by hashing the hash ?
 // dummy
 func EncryptBlock(data []byte) ([]byte, []byte, error) {
 	key := sha256.Sum256(data)

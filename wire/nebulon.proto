@@ -17,6 +17,7 @@ message BlockRef {
     bytes oid = 2;
     CipherType cipher = 3;
     bytes key = 4;
+    bytes iv = 5;
 }
 
 message BlockRefList {
