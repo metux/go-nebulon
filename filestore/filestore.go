@@ -130,31 +130,33 @@ func (ctx fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, error
 	return reflist, nil
 }
 
-func (fs FileStore) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, error) {
+func (ctx fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, error) {
 	if reflist.Count() <= BlockListMax {
-		return fs.writeBlockRefList(reflist)
+		return ctx.fs.writeBlockRefList(reflist)
 	}
 
 	new_reflist := wire.BlockRefList{}
 	for reflist.Count() > BlockListMax {
 		sub := wire.BlockRefList{Refs: reflist.Refs[:BlockListMax]}
-		subref, err := fs.writeBlockRefList(sub)
+		subref, err := ctx.fs.writeBlockRefList(sub)
 		if err != nil {
 			return wire.BlockRef{}, err
 		}
 		new_reflist.AddRef(subref)
+		ctx.graph.AddRef(subref)
 		reflist.Refs = reflist.Refs[BlockListMax:]
 	}
 
 	if reflist.Count() > 0 {
-		subref, err := fs.writeBlockRefList(reflist)
+		subref, err := ctx.fs.writeBlockRefList(reflist)
 		if err != nil {
 			return wire.BlockRef{}, err
 		}
 		new_reflist.AddRef(subref)
+		ctx.graph.AddRef(subref)
 	}
 
-	return fs.storeRefLists(new_reflist)
+	return ctx.storeRefLists(new_reflist)
 }
 
 func (fs FileStore) encodeFileControl(content_ref wire.BlockRef) ([]byte, []byte, error) {
@@ -188,7 +190,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		return wire.BlockRef{}, err
 	}
 
-	content_ref, err := fs.storeRefLists(reflist)
+	content_ref, err := context.storeRefLists(reflist)
 	if err != nil {
 		log.Printf("storeRefLists() error %s\n", err)
 		return wire.BlockRef{}, err
