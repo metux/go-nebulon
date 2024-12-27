@@ -22,7 +22,7 @@ func (reader *FileReader) AddRef(ref wire.BlockRef) error {
 	case wire.RefType_Blob:
 		reader.AddBytes(data)
 	case wire.RefType_RefList:
-		bl, err := reader.fs.LoadBlockList(ref)
+		bl, err := reader.fs.loadBlockList(ref)
 		if err != nil {
 			return err
 		}

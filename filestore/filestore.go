@@ -54,7 +54,7 @@ func (fs FileStore) writeBlockRefList(reflist wire.BlockRefList) (wire.BlockRef,
 	return ref, nil
 }
 
-func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
+func (fs FileStore) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 
 	encrypted, err := fs.BlockStore.LoadBlock(ref)
