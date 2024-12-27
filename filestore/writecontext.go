@@ -11,6 +11,16 @@ type fileWriteContext struct {
 	graph wire.BlockRefList
 }
 
+func (ctx * fileWriteContext) AddGraphRef(ref wire.BlockRef) {
+	ctx.graph.AddRef(ref)
+}
+
+func (ctx * fileWriteContext) AddGraphRefs(refs [] * wire.BlockRef) {
+	for _, ent := range refs {
+		ctx.AddGraphRef(*ent)
+	}
+}
+
 func (ctx * fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 	buf := make([]byte, BlockSize)
@@ -34,6 +44,7 @@ func (ctx * fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, err
 
 func (ctx * fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, error) {
 	if reflist.Count() <= BlockListMax {
+		ctx.AddGraphRefs(reflist.Refs)
 		return ctx.fs.writeBlockRefList(reflist)
 	}
 
@@ -41,15 +52,17 @@ func (ctx * fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.Blo
 	for reflist.Count() > BlockListMax {
 		sub := wire.BlockRefList{Refs: reflist.Refs[:BlockListMax]}
 		subref, err := ctx.fs.writeBlockRefList(sub)
+		ctx.AddGraphRefs(sub.Refs)
 		if err != nil {
 			return wire.BlockRef{}, err
 		}
 		new_reflist.AddRef(subref)
-		ctx.graph.AddRef(subref)
+		ctx.AddGraphRef(subref)
 		reflist.Refs = reflist.Refs[BlockListMax:]
 	}
 
 	if reflist.Count() > 0 {
+		ctx.AddGraphRefs(reflist.Refs)
 		subref, err := ctx.fs.writeBlockRefList(reflist)
 		if err != nil {
 			return wire.BlockRef{}, err

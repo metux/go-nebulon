@@ -150,10 +150,13 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		return content_ref, nil
 	}
 
+	// dump graph
+	for _, ent := range context.graph.Refs {
+		log.Printf("GRAPH REF: %s\n", ent.Dump())
+	}
+
 	// fixme: must drop the key from content the ref !
 	filehead := wire.FileHead{
-// need to create public graph
-//		Content: &content_ref,
 		Private: encrypted,
 	}
 	filehead_bin, err := filehead.Marshal()
