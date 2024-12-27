@@ -199,6 +199,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	log.Printf("StoreFile: Content ref: %s\n", content_ref.Dump())
 
 	// fixme: add headers
+	// fixme: store context graph
 	key, encrypted, err := fs.encodeFileControl(content_ref)
 
 	if err != nil {
