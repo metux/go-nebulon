@@ -23,6 +23,7 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 	return FileStore{
 		BlockStore: bs,
 		encryption: wire.CipherType_AES_CBC,
+//		encryption: wire.CipherType_AES_CBC_ZSTD,
 	}
 }
 
