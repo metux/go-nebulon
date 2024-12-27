@@ -62,7 +62,6 @@ func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 func (fs FileStore) StoreBlock(data []byte) (wire.BlockRef, error) {
 	encrypted, key, err := blockcrypt.EncryptBlock(data)
 	if err != nil {
-		log.Printf("encryption error %s\n", err)
 		return wire.BlockRef{}, err
 	}
 
@@ -76,12 +75,21 @@ func (fs FileStore) StoreBlock(data []byte) (wire.BlockRef, error) {
 
 	// FIXME: need to encrypt
 	ref, err := fs.BlockStore.StoreBlock(data)
+
+	ref.Key = key
 	return ref, err
 }
 
 func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
+	log.Printf("LoadBlock oid=%s:%X key=%X\n", ref.Type, ref.Oid, ref.Key)
+
 	// FIXME: need to decrypt
 	data, err := fs.BlockStore.LoadBlock(ref)
+
+	if len(ref.Key) > 0 {
+		log.Printf("should decrypt\n")
+	}
+
 	return data, err
 }
 
