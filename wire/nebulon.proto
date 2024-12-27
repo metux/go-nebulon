@@ -9,6 +9,7 @@ enum RefType {
 
 enum CipherType {
     Dummy = 0;
+    AES_CBC = 1;
 }
 
 message BlockRef {
