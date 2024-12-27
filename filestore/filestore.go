@@ -42,7 +42,7 @@ func (fs FileStore) writeBlockRefList(reflist wire.BlockRefList) (wire.BlockRef,
 
 	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
 	if err != nil {
-		log.Printf("storeDataBlock: BlockEncrypt() error %s\n", err)
+		log.Printf("writeBlockRefList: BlockEncrypt() error %s\n", err)
 		return wire.BlockRef{}, err
 	}
 
@@ -78,16 +78,16 @@ func (fs FileStore) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 	return reflist, err
 }
 
-func (fs FileStore) storeDataBlock(data []byte) (wire.BlockRef, error) {
+func (fs FileStore) writeDataBlock(data []byte) (wire.BlockRef, error) {
 	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
 	if err != nil {
-		log.Printf("storeDataBlock: BlockEncrypt() error %s\n", err)
+		log.Printf("writeDataBlock: BlockEncrypt() error %s\n", err)
 		return wire.BlockRef{}, err
 	}
 
 	ref, err := fs.BlockStore.StoreBlock(encrypted)
 	if err != nil {
-		log.Printf("storeDataBlock: storing block failed %s\n", err)
+		log.Printf("writeDataBlock: storing block failed %s\n", err)
 		return wire.BlockRef{}, err
 	}
 
@@ -120,7 +120,7 @@ func (ctx fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, error
 			}
 			break
 		}
-		ref, err := ctx.fs.storeDataBlock(buf[:readTotal])
+		ref, err := ctx.fs.writeDataBlock(buf[:readTotal])
 		if err != nil {
 			return reflist, err
 		}
