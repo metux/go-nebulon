@@ -11,6 +11,8 @@ type fileWriteContext struct {
 	graph wire.BlockRefList
 }
 
+// 2do: uniq-sort the list
+// write out the graph unencrypted
 func (ctx * fileWriteContext) AddGraphRef(ref wire.BlockRef) {
 	ctx.graph.AddRef(ref)
 }
