@@ -2,10 +2,7 @@ package filestore
 
 import (
 	"io"
-	"log"
 
-//	"github.com/metux/go-nebulon/base"
-//	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -21,7 +18,6 @@ func (ctx * fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, err
 		readTotal, err := r.Read(buf)
 		if err != nil {
 			if err != io.EOF {
-				log.Println(err)
 				return reflist, err
 			}
 			break
