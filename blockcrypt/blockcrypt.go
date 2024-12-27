@@ -24,11 +24,9 @@ func BlockEncrypt(cipher wire.CipherType, data []byte) ([]byte, []byte, error) {
 	case wire.CipherType_None:
 		return []byte{}, data, nil
 	case wire.CipherType_AES_CBC:
-		encrypted, key, err := AESEncryptBlock(data)
-		return key, encrypted, err
+		return AESEncryptBlock(data)
 	case wire.CipherType_AES_CBC_ZSTD:
-		encrypted, key, err := AES_ZSTD_Encrypt(data)
-		return key, encrypted, err
+		return AES_ZSTD_Encrypt(data)
 	default:
 		return []byte{}, []byte{}, fmt.Errorf("storeDataBlock(): unsupported cipher %s\n", cipher)
 	}

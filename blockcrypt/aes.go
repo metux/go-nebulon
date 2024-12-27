@@ -47,7 +47,7 @@ func AESEncryptBlock(data []byte) ([]byte, []byte, error) {
 		log.Printf("EncryptBlock: encrypting block failed: %s\n", err)
 	}
 
-	return encrypted, key, nil
+	return key, encrypted, nil
 }
 
 func AESDecryptBlock(data []byte, key []byte) ([]byte, error) {
