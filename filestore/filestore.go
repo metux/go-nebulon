@@ -10,7 +10,7 @@ import (
 )
 
 const (
-//	BlockSize    = 4096 * 16
+	//	BlockSize    = 4096 * 16
 	BlockSize    = 4096 * 1024
 	BlockListMax = BlockSize / 80 // a blocklist entry is about 80 bytes
 )
