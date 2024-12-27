@@ -62,23 +62,22 @@ func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 }
 
 func (fs FileStore) storeDataBlock(data []byte) (wire.BlockRef, error) {
-	switch (fs.encryption) {
-		case wire.CipherType_None:
-			return fs.BlockStore.StoreBlock(data)
-		case wire.CipherType_AES_CBC:
-			encrypted, key, err := blockcrypt.AESEncryptBlock(data)
-			if err != nil {
-				return wire.BlockRef{}, err
-			}
-
-			ref, err := fs.BlockStore.StoreBlock(encrypted)
-
-			ref.Key = key
-			ref.Cipher = wire.CipherType_AES_CBC
-			return ref, err
-		default:
-			panic(fmt.Errorf("storeDataBlock(): unsupported cipher %s\n", fs.encryption))
+	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
+	if err != nil {
+		log.Printf("storeDataBlock: BlockEncrypt() error %s\n", err)
+		return wire.BlockRef{}, err
 	}
+
+	ref, err := fs.BlockStore.StoreBlock(encrypted)
+	if err != nil {
+		log.Printf("storeDataBlock: storing block failed %s\n", err)
+		return wire.BlockRef{}, err
+	}
+
+	ref.Key = key
+	ref.Cipher = fs.encryption
+
+	return ref, nil
 }
 
 func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
