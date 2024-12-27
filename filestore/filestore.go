@@ -1,7 +1,6 @@
 package filestore
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockcrypt"
@@ -17,11 +16,13 @@ const (
 
 type FileStore struct {
 	BlockStore base.BlockStore
+	encryption wire.CipherType
 }
 
 func NewFileStore(bs base.BlockStore) base.FileStore {
 	return FileStore{
 		BlockStore: bs,
+		encryption: wire.CipherType_AES_CBC,
 	}
 }
 
@@ -60,40 +61,38 @@ func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 }
 
 func (fs FileStore) storeDataBlock(data []byte) (wire.BlockRef, error) {
-	encrypted, key, err := blockcrypt.EncryptBlock(data)
-	if err != nil {
-		return wire.BlockRef{}, err
+	switch (fs.encryption) {
+		case wire.CipherType_None:
+			return fs.BlockStore.StoreBlock(data)
+		case wire.CipherType_AES_CBC:
+			encrypted, key, err := blockcrypt.EncryptBlock(data)
+			if err != nil {
+				return wire.BlockRef{}, err
+			}
+
+			ref, err := fs.BlockStore.StoreBlock(encrypted)
+
+			ref.Key = key
+			ref.Cipher = wire.CipherType_AES_CBC
+			return ref, err
+		default:
+			panic(fmt.Errorf("storeDataBlock(): unsupported cipher %s\n", fs.encryption))
 	}
-
-	decrypted := blockcrypt.DecryptBlock(encrypted, key)
-
-	if bytes.Compare(data, decrypted) == 0 {
-		log.Printf("encrypt+decrypt OK")
-	} else {
-		log.Printf("enc/dec mismatch")
-	}
-
-	// FIXME: need to encrypt
-//	ref, err := fs.BlockStore.StoreBlock(data)
-	ref, err := fs.BlockStore.StoreBlock(encrypted)
-
-	ref.Key = key
-	return ref, err
 }
 
 func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
-	log.Printf("LoadBlock oid=%s:%X key=%X\n", ref.Type, ref.Oid, ref.Key)
+	log.Printf("LoadBlock oid=%s:%s:%X key=%X\n", ref.Type, ref.Cipher, ref.Oid, ref.Key)
 
-	// FIXME: need to decrypt
 	data, err := fs.BlockStore.LoadBlock(ref)
 
-	if len(ref.Key) > 0 {
-		log.Printf("should decrypt len=%d\n", len(data))
-		decrypted := blockcrypt.DecryptBlock(data, ref.Key)
-		return decrypted, err
+	switch (ref.Cipher) {
+		case wire.CipherType_None:
+			return data, err
+		case wire.CipherType_AES_CBC:
+			return blockcrypt.DecryptBlock(data, ref.Key), nil
+		default:
+			return []byte{}, fmt.Errorf("unsupported cipher type: %s\n", ref.Cipher)
 	}
-
-	return data, err
 }
 
 func (fs FileStore) StoreFileData(r io.Reader) (wire.BlockRefList, error) {
