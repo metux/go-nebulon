@@ -1,7 +1,6 @@
 package filestore
 
 import (
-	"fmt"
 	"io"
 	"log"
 
@@ -26,6 +25,11 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 		BlockStore: bs,
 		encryption: wire.CipherType_AES_CBC_ZSTD,
 	}
+}
+
+type fileWriteContext struct {
+	fs FileStore
+	graph wire.BlockRefList
 }
 
 func (fs FileStore) writeBlockRefList(reflist wire.BlockRefList) (wire.BlockRef, error) {
@@ -104,23 +108,24 @@ func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
 
-func (fs FileStore) storeFileData(r io.Reader) (wire.BlockRefList, error) {
+func (ctx fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 	buf := make([]byte, BlockSize)
 	for {
 		readTotal, err := r.Read(buf)
 		if err != nil {
 			if err != io.EOF {
-				fmt.Println(err)
+				log.Println(err)
 				return reflist, err
 			}
 			break
 		}
-		ref, err := fs.storeDataBlock(buf[:readTotal])
+		ref, err := ctx.fs.storeDataBlock(buf[:readTotal])
 		if err != nil {
 			return reflist, err
 		}
 		reflist.AddRef(ref)
+		ctx.graph.AddRef(ref)
 	}
 	return reflist, nil
 }
@@ -174,7 +179,11 @@ func (fs FileStore) encodeFileControl(content_ref wire.BlockRef) ([]byte, []byte
 }
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
-	reflist, err := fs.storeFileData(r)
+	context := fileWriteContext {
+		fs: fs,
+	}
+
+	reflist, err := context.storeFileData(r)
 	if err != nil {
 		return wire.BlockRef{}, err
 	}
