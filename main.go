@@ -47,9 +47,13 @@ func getFile(fn string, ref wire.BlockRef) {
 	}
 }
 
+const (
+	filename string = "/home/nekrad/dl/000.capture/belle0/belle_camile-2024-12-26-23-52-38.P00.mkv.00.mux.mp4"
+)
+
 func main() {
 	fs = filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
-	ref, err := helpers.StoreFile(fs, map[string]string{}, "go-nebulon")
+	ref, err := helpers.StoreFile(fs, map[string]string{}, filename)
 
 	if err != nil {
 		panic(fmt.Sprintf("ERROR %s\n", err))
