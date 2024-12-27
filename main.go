@@ -49,10 +49,13 @@ func getFile(fn string, ref wire.BlockRef) {
 
 const (
 	filename string = "/home/nekrad/dl/000.capture/belle0/belle_camile-2024-12-26-23-52-38.P00.mkv.00.mux.mp4"
+	tempfile string "test1.tmp"
 )
 
 func main() {
 	fs = filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
+
+	log.Printf("Storing file: %s\n", filename)
 	ref, err := helpers.StoreFile(fs, map[string]string{}, filename)
 
 	if err != nil {
@@ -60,5 +63,6 @@ func main() {
 	}
 
 	log.Printf("Stored file ref %s\n", ref.HexKey())
-	getFile("go-nebulon.tmp", ref)
+	getFile(tempfile, ref)
+	log.Printf("Pulled file\n")
 }
