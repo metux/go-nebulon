@@ -1,7 +1,6 @@
 package filestore
 
 import (
-	"errors"
 	"fmt"
 	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
@@ -30,7 +29,7 @@ func (reader *FileReader) AddRef(ref wire.BlockRef) error {
 			reader.AddRef(*walk)
 		}
 	default:
-		return errors.New(fmt.Sprintf("unsupported ref type %+v\n", ref.Type))
+		return fmt.Errorf("unsupported ref type %+v\n", ref.Type)
 	}
 
 	return nil
