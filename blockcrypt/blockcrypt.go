@@ -1,7 +1,6 @@
 package blockcrypt
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/sha256"
@@ -10,18 +9,6 @@ import (
 
 	"github.com/metux/go-nebulon/wire"
 )
-
-func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
-	padding := (blockSize - len(ciphertext)%blockSize)
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
-}
-
-func PKCS5UnPadding(src []byte) []byte {
-	length := len(src)
-	unpadding := int(src[length-1])
-	return src[:(length - unpadding)]
-}
 
 func AES256Encrypt(data []byte, key []byte, iv []byte) ([]byte, error) {
 	bPlaintext := PKCS5Padding(data, aes.BlockSize)
