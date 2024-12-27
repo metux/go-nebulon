@@ -1,18 +1,12 @@
 package blockcrypt
 
 import (
-	"log"
-	"crypto/sha256"
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/sha256"
+	"log"
 )
-
-func main() {
-	key := "12345678901234567890123456789012"
-	iv := "1234567890123456"
-	plaintext := "abcdefghijklmnopqrstuvwxyzABCDEF"
-	fmt.Printf("Result: %v\n", Ase256(plaintext, key, iv, aes.BlockSize))
-}
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := (blockSize - len(ciphertext)%blockSize)
@@ -26,7 +20,7 @@ func PKCS5UnPadding(src []byte) []byte {
 	return src[:(length - unpadding)]
 }
 
-func Ase256(data[]byte, key []byte, iv []byte) ([]byte, error){
+func AES256Encrypt(data []byte, key []byte, iv []byte) ([]byte, error) {
 	bPlaintext := PKCS5Padding(data, aes.BlockSize)
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -38,30 +32,45 @@ func Ase256(data[]byte, key []byte, iv []byte) ([]byte, error){
 	return ciphertext, nil
 }
 
-func Ase256Decode(cypted [] byte, key [] byte, iv [] byte) ([]byte) {
+func AES256Decrypt(crypted []byte, key []byte, iv []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err)
+		return []byte{}, err
 	}
 	decrypted := make([]byte, len(crypted))
 	mode := cipher.NewCBCDecrypter(block, iv)
 	mode.CryptBlocks(decrypted, crypted)
-	return PKCS5UnPadding(decrypted)
+	return PKCS5UnPadding(decrypted), nil
 }
 
-// FIXME: generate the IV by hashing the hash ?
-// dummy
-func EncryptBlock(data []byte) ([]byte, []byte, error) {
-	key := sha256.Sum256(data)
-//	iv := key
-	iv := []byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+func Hash(data []byte) []byte {
+	h := sha256.Sum256(data)
+	return h[:]
+}
 
-	encryped, err := Ase256(data, key, iv))
-	return encrypted, sha
+func IvFromKey(key []byte) []byte {
+	hashed := sha256.Sum256(key)
+	return hashed[:aes.BlockSize]
+}
+
+func EncryptBlock(data []byte) ([]byte, []byte, error) {
+	key := Hash(data)
+	iv := IvFromKey(key)
+
+	encrypted, err := AES256Encrypt(data, key, iv)
+	if err != nil {
+		log.Printf("EncryptBlock: encrypting block failed: %s\n", err)
+	}
+
+	return encrypted, key, nil
 }
 
 func DecryptBlock(data []byte, key []byte) []byte {
-	iv := []byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+	iv := IvFromKey(key)
 
+	data, err := AES256Decrypt(data, key, iv)
+	if err != nil {
+		panic(err)
+	}
 	return data
 }

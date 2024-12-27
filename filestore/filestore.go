@@ -1,8 +1,10 @@
 package filestore
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/metux/go-nebulon/base"
+	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/wire"
 	"io"
 	"log"
@@ -58,8 +60,19 @@ func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 }
 
 func (fs FileStore) StoreBlock(data []byte) (wire.BlockRef, error) {
-	
+	encrypted, key, err := blockcrypt.EncryptBlock(data)
+	if err != nil {
+		log.Printf("encryption error %s\n", err)
+		return wire.BlockRef{}, err
+	}
 
+	decrypted := blockcrypt.DecryptBlock(encrypted, key)
+
+	if bytes.Compare(data, decrypted) == 0 {
+		log.Printf("encrypt+decrypt OK")
+	} else {
+		log.Printf("enc/dec mismatch")
+	}
 
 	// FIXME: need to encrypt
 	ref, err := fs.BlockStore.StoreBlock(data)
