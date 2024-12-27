@@ -33,18 +33,14 @@ func AES256Decrypt(crypted []byte, key []byte, iv []byte) ([]byte, error) {
 	return PKCS5UnPadding(decrypted), nil
 }
 
-func Hash(data []byte) []byte {
-	h := sha256.Sum256(data)
-	return h[:]
-}
-
 func IvFromKey(key []byte) []byte {
 	hashed := sha256.Sum256(key)
 	return hashed[:aes.BlockSize]
 }
 
 func AESEncryptBlock(data []byte) ([]byte, []byte, error) {
-	key := Hash(data)
+	h := sha256.Sum256(data)
+	key := h[:]
 	iv := IvFromKey(key)
 
 	encrypted, err := AES256Encrypt(data, key, iv)
