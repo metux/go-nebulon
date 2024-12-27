@@ -104,7 +104,7 @@ func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
 
-func (fs FileStore) StoreFileData(r io.Reader) (wire.BlockRefList, error) {
+func (fs FileStore) storeFileData(r io.Reader) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 	buf := make([]byte, BlockSize)
 	for {
@@ -153,7 +153,7 @@ func (fs FileStore) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, err
 }
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
-	reflist, err := fs.StoreFileData(r)
+	reflist, err := fs.storeFileData(r)
 	if err != nil {
 		return wire.BlockRef{}, err
 	}
