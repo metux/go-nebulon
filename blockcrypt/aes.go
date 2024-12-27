@@ -5,6 +5,8 @@ import (
 	"crypto/cipher"
 	"crypto/sha256"
 	"log"
+
+	"github.com/klauspost/compress/zstd"
 )
 
 func aes256Encrypt(data []byte, key []byte, iv []byte) ([]byte, error) {
@@ -56,4 +58,30 @@ func AESDecryptBlock(data []byte, key []byte) []byte {
 		panic(err)
 	}
 	return data
+}
+
+func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, error) {
+	writer, err := zstd.NewWriter(nil, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
+	if err != nil {
+		log.Printf("AES_ZSTD_Encrypt() failed creating writer: %s\n", err)
+		return []byte{}, []byte{}, err
+	}
+	compressed := writer.EncodeAll(data, make([]byte, 0, len(data)))
+
+	return AESEncryptBlock(compressed)
+}
+
+func AES_ZSTD_Decrypt(data []byte, key []byte) []byte {
+	decrypted := AESDecryptBlock(data, key)
+	reader, err := zstd.NewReader(nil)
+	if err != nil {
+		log.Printf("AES_ZSTD_Decrypt() failed creating reader: %s\n", err)
+		return []byte{}
+	}
+	decoded, err := reader.DecodeAll(decrypted, make([]byte, 0, len(data)))
+	if err != nil {
+		log.Printf("AES_ZSTD_Decrypt() failed decompressing %s\n", err)
+		return decoded
+	}
+	return decoded
 }
