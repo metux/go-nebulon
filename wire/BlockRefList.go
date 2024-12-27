@@ -12,7 +12,7 @@ func (rl BlockRefList) Dump() string {
 		if walk == nil {
 			s = append(s, "<nil>")
 		} else {
-			s = append(s, walk.HexKey())
+			s = append(s, walk.Dump())
 		}
 	}
 	return fmt.Sprintf("(%d) %s", len(rl.Refs), strings.Join(s, " "))

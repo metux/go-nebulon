@@ -7,15 +7,15 @@ PACKAGE := github.com/metux/go-nebulon
 
 GO ?= /usr/lib/go-1.22/bin/go
 
+TEST_INPUT=./go-nebulon
+TEST_OUTPUT=test1.tmp
+
 #export GODEBUG=http1debug=2
 #export GODEBUG=http2debug=2
 
-# GO := go
-
 run: get-deps gen-proto compile
-#	time $(GO) run $(GOTAGS) .
 	time ./go-nebulon
-	diff -ruN go-nebulon go-nebulon.tmp
+	diff -ruN $(TEST_INPUT) $(TEST_OUTPUT)
 
 gen-proto:
 	protoc -I=. --go_out=. wire/nebulon.proto --go_opt="Mwire/nebulon.proto=./wire"

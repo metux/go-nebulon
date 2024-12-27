@@ -164,28 +164,82 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		return wire.BlockRef{}, err
 	}
 
+	log.Printf("StoreFile: Content ref: %s\n", content_ref.Dump())
+
+	// fixme: add headers
+	fctrl := wire.FileControl{
+		Content: &content_ref,
+	}
+	fctrl_bin, err := fctrl.Marshal()
+	if err != nil {
+		log.Printf("failed marshalling fctrl: %s\n", err)
+		return content_ref, nil
+	}
+
+	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, fctrl_bin)
+	if err != nil {
+		log.Printf("failed encrypting fctrl: %s\n", err)
+		return content_ref, nil
+	}
+
+//	log.Printf("key=%X encr=%X\n", key, encrypted)
+
 	// fixme: must drop the key from content the ref !
 	filehead := wire.FileHead{
 		Content: &content_ref,
+		Private: encrypted,
+	}
+	filehead_bin, err := filehead.Marshal()
+	if err != nil {
+		log.Printf("error marshalling file head: %s\n", err)
+		return content_ref, err
 	}
 
-	log.Printf("file head: %+v\n", filehead)
+	filehead_ref, err := fs.BlockStore.StoreBlock(filehead_bin)
+	if err != nil {
+		log.Printf("error storing file head in blockstore %s\n", err)
+		return content_ref, err
+	}
 
-	return content_ref, nil
+	log.Printf("file head ref: %X\n", filehead_ref.Oid)
+
+	filehead_ref.Cipher = fs.encryption
+	filehead_ref.Key = key
+	filehead_ref.Type = wire.RefType_File
+	return filehead_ref, nil
 }
 
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
 	// load the index block
-	_, err := fs.LoadBlock(ref)
+	filehead_ref := wire.BlockRef{
+		Oid: ref.Oid,
+		Type: ref.Type,
+	}
+
+	filehead_bin, err := fs.LoadBlock(filehead_ref)
 	if err != nil {
+		log.Printf("failed loading filehead block: %s\n", err)
 		return nil, nil, err
 	}
+	filehead := wire.FileHead{}
+	filehead.Unmarshal(filehead_bin)
+
+	fctrl_bin, _ := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, filehead.Private)
+
+	fctrl := wire.FileControl{}
+	fctrl.Unmarshal(fctrl_bin)
+
+	content_ref := fctrl.Content
+	log.Printf("ReadFile oid=%s:%s:%X key=%X\n", content_ref.Type, content_ref.Cipher, content_ref.Oid, content_ref.Key)
+
+//	fctrl := wire.FileControl{}
+//	err := fctrl.Unmarshal(filehead.Private)
 
 	reader := &FileReader{
 		fs: fs,
 	}
 
-	if err = reader.AddRef(ref); err != nil {
+	if err = reader.AddRef(*content_ref); err != nil {
 		return nil, nil, err
 	}
 

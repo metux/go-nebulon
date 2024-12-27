@@ -13,14 +13,10 @@ func RefForBlock(data []byte) BlockRef {
 	}
 }
 
-func (ref BlockRef) HexKey() string {
-	return fmt.Sprintf("%s-%X", ref.Type, ref.Oid)
+func (ref BlockRef) Dump() string {
+	return fmt.Sprintf("%s:%X:%X", ref.Type, ref.Oid, ref.Key)
 }
 
 func (ref BlockRef) OID() string {
 	return fmt.Sprintf("%X", ref.Oid)
-}
-
-func (ref BlockRef) Dump() string {
-	return ref.HexKey()
 }

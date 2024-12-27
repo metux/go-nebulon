@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	filename string = "/home/nekrad/dl/000.capture/belle0/belle_camile-2024-12-26-23-52-38.P00.mkv.00.mux.mp4"
+	//	filename string = "/home/nekrad/dl/000.capture/belle0/belle_camile-2024-12-26-23-52-38.P00.mkv.00.mux.mp4"
+	filename string = "go-nebulon"
 	tempfile string = "test1.tmp"
 )
 
@@ -62,7 +63,7 @@ func main() {
 		panic(fmt.Sprintf("ERROR %s\n", err))
 	}
 
-	log.Printf("Stored file ref %s\n", ref.HexKey())
+	log.Printf("Stored file ref %s\n", ref.Dump())
 	getFile(tempfile, ref)
 	log.Printf("Pulled file\n")
 }

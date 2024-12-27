@@ -5,6 +5,7 @@ package wire;
 enum RefType {
     Blob = 0;
     RefList = 1;
+    File = 2;
 }
 
 enum CipherType {
@@ -31,5 +32,11 @@ message FileHead {
     BlockRef content = 2;
     BlockRef headers = 3;
     BlockRef graph = 4;         // for encrypted files: publicly visible references, used for GC
-    bool encrypted = 5;         // when encrytped, both content and headers are encrypted
+    bytes private = 5;
+}
+
+// this part usually is encrypted
+message FileControl {
+    BlockRef content = 1;
+    BlockRef headers = 2;
 }
