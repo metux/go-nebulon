@@ -2,6 +2,7 @@
 # GO := go1.22.0
 # PATH := $(PATH):/usr/lib/go-1.22/
 
+SHELL := /bin/bash
 PACKAGE := github.com/metux/go-nebulon
 
 GO ?= /usr/lib/go-1.22/bin/go
@@ -11,8 +12,9 @@ GO ?= /usr/lib/go-1.22/bin/go
 
 # GO := go
 
-run: get-deps gen-proto
-	$(GO) run $(GOTAGS) .
+run: get-deps gen-proto compile
+#	time $(GO) run $(GOTAGS) .
+	time ./go-nebulon
 	diff -ruN go-nebulon go-nebulon.tmp
 
 gen-proto:

@@ -22,7 +22,6 @@ type FileStore struct {
 func NewFileStore(bs base.BlockStore) base.FileStore {
 	return FileStore{
 		BlockStore: bs,
-//		encryption: wire.CipherType_AES_CBC,
 		encryption: wire.CipherType_AES_CBC_ZSTD,
 	}
 }
@@ -35,24 +34,36 @@ func (fs FileStore) writeBlockRefList(reflist wire.BlockRefList) (wire.BlockRef,
 		return wire.BlockRef{}, err
 	}
 
-	oid, err := fs.BlockStore.StoreBlock(data)
+	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
 	if err != nil {
-		log.Println("error storing reflist block", err)
-		return oid, err
+		log.Printf("storeDataBlock: BlockEncrypt() error %s\n", err)
+		return wire.BlockRef{}, err
 	}
 
-	oid.Type = wire.RefType_RefList
-	return oid, err
+	ref, err := fs.BlockStore.StoreBlock(encrypted)
+	if err != nil {
+		log.Println("error storing reflist block", err)
+		return ref, err
+	}
+
+	ref.Type = wire.RefType_RefList
+	ref.Cipher = fs.encryption
+	ref.Key = key
+	return ref, nil
 }
 
-// FIXME: support encryption
 func (fs FileStore) LoadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 
-	data, err := fs.BlockStore.LoadBlock(ref)
-
+	encrypted, err := fs.BlockStore.LoadBlock(ref)
 	if err != nil {
 		log.Printf("failed loading blocklist block: %s\n", err)
+		return reflist, err
+	}
+
+	data, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, encrypted)
+	if err != nil {
+		log.Printf("failed decrypting blocklist: %s\n", err)
 		return reflist, err
 	}
 
