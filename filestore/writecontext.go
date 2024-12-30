@@ -123,3 +123,25 @@ func (ctx *fileWriteContext) writeGraph() (wire.BlockRef, error) {
 	log.Printf("Graph ref: %s\n", graph_ref.Dump())
 	return graph_ref, err
 }
+
+func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.BlockRef) (wire.BlockRef, error) {
+	filehead := wire.FileHead{
+		Private: encrypted,
+		Graph: &graph_ref,
+	}
+	filehead_bin, err := filehead.Marshal()
+	if err != nil {
+		log.Printf("error marshalling file head: %s\n", err)
+		return wire.BlockRef{}, err
+	}
+
+	filehead_ref, err := ctx.fs.BlockStore.StoreBlock(filehead_bin)
+	if err != nil {
+		log.Printf("error storing file head in blockstore %s\n", err)
+		return wire.BlockRef{}, err
+	}
+
+	log.Printf("file head ref: %X\n", filehead_ref.Oid)
+
+	return filehead_ref, nil
+}

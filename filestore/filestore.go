@@ -119,17 +119,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		return wire.BlockRef{}, err
 	}
 
-	filehead := wire.FileHead{
-		Private: encrypted,
-		Graph: &graph_ref,
-	}
-	filehead_bin, err := filehead.Marshal()
-	if err != nil {
-		log.Printf("error marshalling file head: %s\n", err)
-		return content_ref, err
-	}
-
-	filehead_ref, err := fs.BlockStore.StoreBlock(filehead_bin)
+	filehead_ref, err := context.writeFileHead(encrypted, graph_ref)
 	if err != nil {
 		log.Printf("error storing file head in blockstore %s\n", err)
 		return content_ref, err
