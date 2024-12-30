@@ -1,8 +1,11 @@
 package filestore
 
 import (
-	"github.com/metux/go-nebulon/wire"
 	"io"
+	"log"
+
+	"github.com/metux/go-nebulon/blockcrypt"
+	"github.com/metux/go-nebulon/wire"
 )
 
 type fileWriteContext struct {
@@ -42,7 +45,7 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.Bloc
 	}
 
 	if reflist.Count() <= BlockListMax {
-		subref, err := ctx.fs.writeBlockRefList(reflist)
+		subref, err := ctx.writeBlockRefList(reflist)
 		// store newly created ref into the global graph
 		ctx.AddGraphRef(subref)
 		return subref, err
@@ -51,7 +54,7 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.Bloc
 	new_reflist := wire.BlockRefList{}
 	for reflist.Count() > BlockListMax {
 		sub := wire.BlockRefList{Refs: reflist.Refs[:BlockListMax]}
-		subref, err := ctx.fs.writeBlockRefList(sub)
+		subref, err := ctx.writeBlockRefList(sub)
 		if err != nil {
 			return wire.BlockRef{}, err
 		}
@@ -60,7 +63,7 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.Bloc
 	}
 
 	if reflist.Count() > 0 {
-		subref, err := ctx.fs.writeBlockRefList(reflist)
+		subref, err := ctx.writeBlockRefList(reflist)
 		if err != nil {
 			return wire.BlockRef{}, err
 		}
@@ -68,4 +71,30 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.Bloc
 	}
 
 	return ctx.storeRefLists(new_reflist)
+}
+
+func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList) (wire.BlockRef, error) {
+	data, err := reflist.Marshal()
+
+	if err != nil {
+		log.Println("marshal error: ", err)
+		return wire.BlockRef{}, err
+	}
+
+	key, encrypted, err := blockcrypt.BlockEncrypt(ctx.fs.encryption, data)
+	if err != nil {
+		log.Printf("writeBlockRefList: BlockEncrypt() error %s\n", err)
+		return wire.BlockRef{}, err
+	}
+
+	ref, err := ctx.fs.BlockStore.StoreBlock(encrypted)
+	if err != nil {
+		log.Println("error storing reflist block", err)
+		return ref, err
+	}
+
+	ref.Type = wire.RefType_RefList
+	ref.Cipher = ctx.fs.encryption
+	ref.Key = key
+	return ref, nil
 }

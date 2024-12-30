@@ -27,32 +27,6 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 	}
 }
 
-func (fs FileStore) writeBlockRefList(reflist wire.BlockRefList) (wire.BlockRef, error) {
-	data, err := reflist.Marshal()
-
-	if err != nil {
-		log.Println("marshal error: ", err)
-		return wire.BlockRef{}, err
-	}
-
-	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
-	if err != nil {
-		log.Printf("writeBlockRefList: BlockEncrypt() error %s\n", err)
-		return wire.BlockRef{}, err
-	}
-
-	ref, err := fs.BlockStore.StoreBlock(encrypted)
-	if err != nil {
-		log.Println("error storing reflist block", err)
-		return ref, err
-	}
-
-	ref.Type = wire.RefType_RefList
-	ref.Cipher = fs.encryption
-	ref.Key = key
-	return ref, nil
-}
-
 func (fs FileStore) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 
