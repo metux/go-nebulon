@@ -125,15 +125,13 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	}
 
 	context.graph.Sort()
-
-	// dump graph
-	for idx, ent := range context.graph.Refs {
-		log.Printf("S GRAPH %d REF: %s\n", idx, ent.Dump())
-	}
+	graph_ref, err := context.storeRefLists(context.graph, wire.CipherType_None)
+	log.Printf("Graph ref: %s\n", graph_ref.Dump())
 
 	// fixme: must drop the key from content the ref !
 	filehead := wire.FileHead{
 		Private: encrypted,
+		Graph: &graph_ref,
 	}
 	filehead_bin, err := filehead.Marshal()
 	if err != nil {
