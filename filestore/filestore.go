@@ -58,26 +58,6 @@ func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
 
-func (fs FileStore) encodeFileControl(content_ref wire.BlockRef, headers map[string]string) ([]byte, []byte, error) {
-
-	// fixme: add headers
-	fctrl := wire.FileControl{
-		Content: &content_ref,
-		Headers: headers,
-	}
-	data, err := fctrl.Marshal()
-	if err != nil {
-		return []byte{}, []byte{}, fmt.Errorf("failed marshalling FileControl [%w]", err)
-	}
-
-	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
-	if err != nil {
-		return []byte{}, []byte{}, fmt.Errorf("failed encrypting FileControl [%w]", err)
-	}
-
-	return key, encrypted, nil
-}
-
 func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	context := fileWriteContext{
 		fs: fs,
