@@ -14,11 +14,12 @@ func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, wire.CipherType, error) {
 		return []byte{}, []byte{}, wire.CipherType_None, fmt.Errorf("AES_ZSTD_Encrypt() failed creating writer [%w]", err)
 	}
 	compressed := writer.EncodeAll(data, make([]byte, 0, len(data)))
-	log.Printf("raw %d compress %d ratio %f\n", len(data), len(compressed), float32(len(compressed))/float32(len(data)))
 
 	if len(compressed) >= len(data) {
-		log.Printf("no size improvement - using uncompressed")
+		log.Printf("raw %d compress %d ratio %f --> using uncompressed\n", len(data), len(compressed), float32(len(compressed))/float32(len(data)))
 		return AES_Encrypt(data)
+	} else {
+		log.Printf("raw %d compress %d ratio %f\n", len(data), len(compressed), float32(len(compressed))/float32(len(data)))
 	}
 
 	key, encrypted, _, err := AES_Encrypt(compressed)

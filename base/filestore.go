@@ -1,8 +1,9 @@
 package base
 
 import (
-	"github.com/metux/go-nebulon/wire"
 	"io"
+
+	"github.com/metux/go-nebulon/wire"
 )
 
 type FileStore interface {
