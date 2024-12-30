@@ -135,6 +135,7 @@ func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string,
 	fctrl.Unmarshal(fctrl_bin)
 
 	log.Printf("ReadFile content %s\n", fctrl.Content.Dump())
+	log.Printf("headers: %v\n", fctrl.Headers)
 
 	reader := &FileReader{
 		fs: fs,
@@ -144,5 +145,5 @@ func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string,
 		return nil, nil, err
 	}
 
-	return reader, nil, nil
+	return reader, fctrl.Headers, nil
 }

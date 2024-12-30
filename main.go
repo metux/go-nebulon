@@ -26,7 +26,11 @@ func getFile(fn string, ref wire.BlockRef) {
 
 	if headers != nil {
 		log.Printf("got headers\n")
+		log.Printf("--> %s\n", headers)
+	} else {
+		log.Printf("NO HEADERS\n")
 	}
+
 	if err != nil {
 		panic(fmt.Sprintf("open reader failed: %s", err))
 	}
