@@ -1,21 +1,21 @@
 package filestore
 
 import (
-	"io"
 	"github.com/metux/go-nebulon/wire"
+	"io"
 )
 
 type fileWriteContext struct {
-	fs FileStore
+	fs    FileStore
 	graph wire.BlockRefList
 }
 
 // write out the graph unencrypted
-func (ctx * fileWriteContext) AddGraphRef(ref wire.BlockRef) {
+func (ctx *fileWriteContext) AddGraphRef(ref wire.BlockRef) {
 	ctx.graph.AddRef(wire.BlockRef{Oid: ref.Oid})
 }
 
-func (ctx * fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, error) {
+func (ctx *fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 	buf := make([]byte, BlockSize)
 	for {
@@ -35,7 +35,7 @@ func (ctx * fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, err
 	return reflist, nil
 }
 
-func (ctx * fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, error) {
+func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, error) {
 	// store all our refs into the global graph
 	for _, ent := range reflist.Refs {
 		ctx.AddGraphRef(*ent)

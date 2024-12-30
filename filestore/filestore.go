@@ -125,7 +125,7 @@ func (fs FileStore) encodeFileControl(content_ref wire.BlockRef) ([]byte, []byte
 }
 
 func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
-	context := fileWriteContext {
+	context := fileWriteContext{
 		fs: fs,
 	}
 
@@ -147,12 +147,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	key, encrypted, err := fs.encodeFileControl(content_ref)
 
 	if err != nil {
-		return content_ref, nil
-	}
-
-	// dump graph
-	for idx, ent := range context.graph.Refs {
-		log.Printf("U GRAPH %d REF: %s\n", idx, ent.Dump())
+		return wire.BlockRef{}, err
 	}
 
 	context.graph.Sort()
@@ -189,7 +184,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
 	// load the index block
 	filehead_ref := wire.BlockRef{
-		Oid: ref.Oid,
+		Oid:  ref.Oid,
 		Type: ref.Type,
 	}
 

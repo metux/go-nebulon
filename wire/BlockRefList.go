@@ -1,7 +1,10 @@
 package wire
 
 import (
+	"bytes"
 	"fmt"
+	"log"
+	"sort"
 	"strings"
 
 	"google.golang.org/protobuf/proto"
@@ -38,4 +41,29 @@ func (rl *BlockRefList) Unmarshal(data []byte) error {
 
 func (rl *BlockRefList) AddRef(ref BlockRef) {
 	rl.Refs = append(rl.Refs, &ref)
+}
+
+func (b BlockRefList) Len() int {
+	return len(b.Refs)
+}
+
+func (b BlockRefList) Less(i, j int) bool {
+	// bytes package already implements Comparable for []byte.
+	switch bytes.Compare(b.Refs[i].Oid, b.Refs[j].Oid) {
+	case -1:
+		return true
+	case 0, 1:
+		return false
+	default:
+		log.Panic("not fail-able with `bytes.Comparable` bounded [-1, 1].")
+		return false
+	}
+}
+
+func (b BlockRefList) Swap(i, j int) {
+	b.Refs[j], b.Refs[i] = b.Refs[i], b.Refs[j]
+}
+
+func (b BlockRefList) Sort() {
+	sort.Sort(b)
 }
