@@ -82,6 +82,7 @@ func (fs FileStore) encodeFileControl(content_ref wire.BlockRef, headers map[str
 	// fixme: add headers
 	fctrl := wire.FileControl{
 		Content: &content_ref,
+		Headers: headers,
 	}
 	data, err := fctrl.Marshal()
 	if err != nil {
@@ -98,7 +99,7 @@ func (fs FileStore) encodeFileControl(content_ref wire.BlockRef, headers map[str
 	return key, encrypted, nil
 }
 
-func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	context := fileWriteContext{
 		fs: fs,
 	}
@@ -133,7 +134,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	return filehead_ref, nil
 }
 
-func (fs FileStore) ReadFile(ref wire.BlockRef) (io.Reader, map[string]string, error) {
+func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
 	// load the index block
 	filehead_ref := wire.BlockRef{
 		Oid:  ref.Oid,
