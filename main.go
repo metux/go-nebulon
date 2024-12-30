@@ -58,7 +58,7 @@ func main() {
 
 	log.Printf("Storing file: %s\n", filename)
 	ref, err := helpers.StoreFile(fs, map[string]string{
-		"wurst": "brot" }, filename)
+		"wurst": "brot"}, filename)
 
 	if err != nil {
 		panic(fmt.Sprintf("ERROR %s\n", err))

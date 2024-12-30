@@ -127,7 +127,7 @@ func (ctx *fileWriteContext) writeGraph() (wire.BlockRef, error) {
 func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.BlockRef) (wire.BlockRef, error) {
 	filehead := wire.FileHead{
 		Private: encrypted,
-		Graph: &graph_ref,
+		Graph:   &graph_ref,
 	}
 	filehead_bin, err := filehead.Marshal()
 	if err != nil {
