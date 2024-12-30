@@ -1,6 +1,7 @@
 package filestore
 
 import (
+	"fmt"
 	"io"
 	"log"
 
@@ -33,14 +34,12 @@ func (fs FileStore) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 
 	encrypted, err := fs.BlockStore.LoadBlock(ref)
 	if err != nil {
-		log.Printf("failed loading blocklist block: %s\n", err)
-		return reflist, err
+		return reflist, fmt.Errorf("failed loading blocklist block [%w]", err)
 	}
 
 	data, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, encrypted)
 	if err != nil {
-		log.Printf("failed decrypting blocklist: %s\n", err)
-		return reflist, err
+		return reflist, fmt.Errorf("failed decrypting blocklist [%w]", err)
 	}
 
 	// note do it in separate steps, since reflist is changed here
@@ -68,14 +67,12 @@ func (fs FileStore) encodeFileControl(content_ref wire.BlockRef, headers map[str
 	}
 	data, err := fctrl.Marshal()
 	if err != nil {
-		log.Printf("failed marshalling fctrl: %s\n", err)
-		return []byte{}, []byte{}, err
+		return []byte{}, []byte{}, fmt.Errorf("failed marshalling FileControl [%w]", err)
 	}
 
 	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
 	if err != nil {
-		log.Printf("failed encrypting fctrl: %s\n", err)
-		return []byte{}, []byte{}, err
+		return []byte{}, []byte{}, fmt.Errorf("failed encrypting FileControl [%w]", err)
 	}
 
 	return key, encrypted, nil
@@ -104,8 +101,7 @@ func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.Bl
 
 	filehead_ref, err := context.writeFileHead(encrypted, graph_ref)
 	if err != nil {
-		log.Printf("error storing file head in blockstore %s\n", err)
-		return content_ref, err
+		return content_ref, fmt.Errorf("error storing file head in blockstore [%w]", err)
 	}
 
 	log.Printf("file head ref: %X\n", filehead_ref.Oid)
@@ -125,16 +121,14 @@ func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string,
 
 	filehead_bin, err := fs.LoadBlock(filehead_ref)
 	if err != nil {
-		log.Printf("failed loading filehead block: %s\n", err)
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed loading FileHead [%w]", err)
 	}
 	filehead := wire.FileHead{}
 	filehead.Unmarshal(filehead_bin)
 
 	fctrl_bin, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, filehead.Private)
 	if err != nil {
-		log.Printf("error decrypting fctrl: %s\n", err)
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("error decrypting FileControl [%w]", err)
 	}
 
 	fctrl := wire.FileControl{}

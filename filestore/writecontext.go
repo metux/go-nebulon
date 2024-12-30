@@ -1,6 +1,7 @@
 package filestore
 
 import (
+	"fmt"
 	"io"
 	"log"
 
@@ -77,20 +78,17 @@ func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher
 	data, err := reflist.Marshal()
 
 	if err != nil {
-		log.Println("marshal error: ", err)
-		return wire.BlockRef{}, err
+		return wire.BlockRef{}, fmt.Errorf("reflist marshal error [%w]", err)
 	}
 
 	key, encrypted, err := blockcrypt.BlockEncrypt(cipher, data)
 	if err != nil {
-		log.Printf("writeBlockRefList: BlockEncrypt() error %s\n", err)
-		return wire.BlockRef{}, err
+		return wire.BlockRef{}, fmt.Errorf("writeBlockRefList: BlockEncrypt() error [%w]", err)
 	}
 
 	ref, err := ctx.fs.BlockStore.StoreBlock(encrypted)
 	if err != nil {
-		log.Println("error storing reflist block", err)
-		return ref, err
+		return ref, fmt.Errorf("writeBlockRefList: StoreBlock() error [%w]", err)
 	}
 
 	ref.Type = wire.RefType_RefList
@@ -107,7 +105,6 @@ func (ctx *fileWriteContext) storeFileStream(r io.Reader, cipher wire.CipherType
 
 	content_ref, err := ctx.storeRefLists(reflist, ctx.fs.encryption)
 	if err != nil {
-		log.Printf("storeRefLists() error %s\n", err)
 		return wire.BlockRef{}, err
 	}
 
@@ -118,7 +115,7 @@ func (ctx *fileWriteContext) writeGraph() (wire.BlockRef, error) {
 	ctx.graph.Sort()
 	graph_ref, err := ctx.storeRefLists(ctx.graph, wire.CipherType_None)
 	if err != nil {
-		log.Printf("Graph write error: %s\n", err)
+		return graph_ref, fmt.Errorf("graph write error [%w]", err)
 	}
 	log.Printf("Graph ref: %s\n", graph_ref.Dump())
 	return graph_ref, err
@@ -131,14 +128,12 @@ func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.Bloc
 	}
 	filehead_bin, err := filehead.Marshal()
 	if err != nil {
-		log.Printf("error marshalling file head: %s\n", err)
-		return wire.BlockRef{}, err
+		return wire.BlockRef{}, fmt.Errorf("error marshalling file head [%w]", err)
 	}
 
 	filehead_ref, err := ctx.fs.BlockStore.StoreBlock(filehead_bin)
 	if err != nil {
-		log.Printf("error storing file head in blockstore %s\n", err)
-		return wire.BlockRef{}, err
+		return wire.BlockRef{}, fmt.Errorf("error storing file head in blockstore [%w]", err)
 	}
 
 	log.Printf("file head ref: %X\n", filehead_ref.Oid)
@@ -149,14 +144,12 @@ func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.Bloc
 func (ctx *fileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType) (wire.BlockRef, error) {
 	key, encrypted, err := blockcrypt.BlockEncrypt(cipher, data)
 	if err != nil {
-		log.Printf("writeDataBlock: BlockEncrypt() error %s\n", err)
-		return wire.BlockRef{}, err
+		return wire.BlockRef{}, fmt.Errorf("writeDataBlock: BlockEncrypt() error [%w]", err)
 	}
 
 	ref, err := ctx.fs.BlockStore.StoreBlock(encrypted)
 	if err != nil {
-		log.Printf("writeDataBlock: storing block failed %s\n", err)
-		return wire.BlockRef{}, err
+		return wire.BlockRef{}, fmt.Errorf("writeDataBlock: storing block failed [%w]", err)
 	}
 
 	ref.Key = key
