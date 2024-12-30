@@ -77,7 +77,7 @@ func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
 
-func (fs FileStore) encodeFileControl(content_ref wire.BlockRef) ([]byte, []byte, error) {
+func (fs FileStore) encodeFileControl(content_ref wire.BlockRef, headers map[string]string) ([]byte, []byte, error) {
 
 	// fixme: add headers
 	fctrl := wire.FileControl{
@@ -103,32 +103,22 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		fs: fs,
 	}
 
-	reflist, err := context.storeFileData(r)
-	if err != nil {
-		return wire.BlockRef{}, err
-	}
-
-	content_ref, err := context.storeRefLists(reflist, context.fs.encryption)
-	if err != nil {
-		log.Printf("storeRefLists() error %s\n", err)
-		return wire.BlockRef{}, err
-	}
+	content_ref, err := context.storeFileStream(r)
 
 	log.Printf("StoreFile: Content ref: %s\n", content_ref.Dump())
 
 	// fixme: add headers
-	// fixme: store context graph
-	key, encrypted, err := fs.encodeFileControl(content_ref)
+	key, encrypted, err := fs.encodeFileControl(content_ref, headers)
 
 	if err != nil {
 		return wire.BlockRef{}, err
 	}
 
-	context.graph.Sort()
-	graph_ref, err := context.storeRefLists(context.graph, wire.CipherType_None)
-	log.Printf("Graph ref: %s\n", graph_ref.Dump())
+	graph_ref, err := context.writeGraph()
+	if err != nil {
+		return wire.BlockRef{}, err
+	}
 
-	// fixme: must drop the key from content the ref !
 	filehead := wire.FileHead{
 		Private: encrypted,
 		Graph: &graph_ref,

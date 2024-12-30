@@ -98,3 +98,28 @@ func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher
 	ref.Key = key
 	return ref, nil
 }
+
+func (ctx *fileWriteContext) storeFileStream(r io.Reader) (wire.BlockRef, error) {
+	reflist, err := ctx.storeFileData(r)
+	if err != nil {
+		return wire.BlockRef{}, err
+	}
+
+	content_ref, err := ctx.storeRefLists(reflist, ctx.fs.encryption)
+	if err != nil {
+		log.Printf("storeRefLists() error %s\n", err)
+		return wire.BlockRef{}, err
+	}
+
+	return content_ref, nil
+}
+
+func (ctx *fileWriteContext) writeGraph() (wire.BlockRef, error) {
+	ctx.graph.Sort()
+	graph_ref, err := ctx.storeRefLists(ctx.graph, wire.CipherType_None)
+	if err != nil {
+		log.Printf("Graph write error: %s\n", err)
+	}
+	log.Printf("Graph ref: %s\n", graph_ref.Dump())
+	return graph_ref, err
+}
