@@ -5,7 +5,10 @@
 SHELL := /bin/bash
 PACKAGE := github.com/metux/go-nebulon
 
-GO ?= /usr/lib/go-1.22/bin/go
+# GO ?= /usr/lib/go-1.22/bin/go
+GO ?= go
+
+EXECUTABLE=go-nebulon
 
 TEST_INPUT=./go-nebulon
 TEST_OUTPUT=test1.tmp
@@ -33,4 +36,5 @@ fmt:
 	$(GO) fmt $(PACKAGE)/...
 
 clean:
-	rm -f eertool
+	rm -f $(EXECUTABLE)
+	$(MAKE) -C wire clean
