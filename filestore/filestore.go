@@ -69,37 +69,9 @@ func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.Bl
 }
 
 func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
-	reader := &FileReader{
+	reader := &fileReader{
 		fs: fs,
 	}
 
-	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
-	filehead_ref := wire.BlockRef{
-		Oid:  ref.Oid,
-		Type: ref.Type,
-	}
-
-	filehead_bin, err := fs.LoadBlock(filehead_ref)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed loading FileHead [%w]", err)
-	}
-	filehead := wire.FileHead{}
-	filehead.Unmarshal(filehead_bin)
-
-	fctrl_bin, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, filehead.Private)
-	if err != nil {
-		return nil, nil, fmt.Errorf("error decrypting FileControl [%w]", err)
-	}
-
-	fctrl := wire.FileControl{}
-	fctrl.Unmarshal(fctrl_bin)
-
-	log.Printf("ReadFile content %s\n", fctrl.Content.Dump())
-	log.Printf("headers: %v\n", fctrl.Headers)
-
-	if err = reader.AddRef(*fctrl.Content); err != nil {
-		return nil, nil, err
-	}
-
-	return reader, fctrl.Headers, nil
+	return reader.ReadStream(ref)
 }
