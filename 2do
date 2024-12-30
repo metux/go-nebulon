@@ -1,1 +1,4 @@
-* add slice blockref's
+* add slice blockref's --> honor them in file reader
+* signatures ?
+* timestamps ?
+* directories
