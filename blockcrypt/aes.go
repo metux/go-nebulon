@@ -3,7 +3,7 @@ package blockcrypt
 import (
 	"crypto/aes"
 	"crypto/sha256"
-	"log"
+	"fmt"
 
 	"github.com/metux/go-nebulon/util"
 )
@@ -20,7 +20,7 @@ func AES_Encrypt(data []byte) ([]byte, []byte, error) {
 
 	encrypted, err := util.AES256Encrypt(data, key, iv)
 	if err != nil {
-		log.Printf("EncryptBlock: encrypting block failed: %s\n", err)
+		return key, encrypted, fmt.Errorf("EncryptBlock: encrypting block failed [%w]", err)
 	}
 
 	return key, encrypted, nil

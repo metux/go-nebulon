@@ -1,7 +1,7 @@
 package blockcrypt
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/klauspost/compress/zstd"
 )
@@ -9,8 +9,7 @@ import (
 func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, error) {
 	writer, err := zstd.NewWriter(nil, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
 	if err != nil {
-		log.Printf("AES_ZSTD_Encrypt() failed creating writer: %s\n", err)
-		return []byte{}, []byte{}, err
+		return []byte{}, []byte{}, fmt.Errorf("AES_ZSTD_Encrypt() failed creating writer [%w]", err)
 	}
 	compressed := writer.EncodeAll(data, make([]byte, 0, len(data)))
 
@@ -25,13 +24,11 @@ func AES_ZSTD_Decrypt(data []byte, key []byte) ([]byte, error) {
 
 	reader, err := zstd.NewReader(nil)
 	if err != nil {
-		log.Printf("AES_ZSTD_Decrypt() failed creating reader: %s\n", err)
-		return []byte{}, err
+		return []byte{}, fmt.Errorf("AES_ZSTD_Decrypt() failed creating reader [%w]", err)
 	}
 	decoded, err := reader.DecodeAll(decrypted, make([]byte, 0, len(data)))
 	if err != nil {
-		log.Printf("AES_ZSTD_Decrypt() failed decompressing %s\n", err)
-		return decoded, err
+		return decoded, fmt.Errorf("AES_ZSTD_Decrypt() failed decompressing [%w]", err)
 	}
 	return decoded, nil
 }
