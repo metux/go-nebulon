@@ -18,7 +18,10 @@ run: get-deps gen-proto compile
 	diff -ruN $(TEST_INPUT) $(TEST_OUTPUT)
 
 gen-proto:
-	protoc -I=. --go_out=. wire/nebulon.proto --go_opt="Mwire/nebulon.proto=./wire"
+	protoc -I=. --go_out=. wire/*.proto \
+		--go_opt="Mwire/nebulon.proto=./wire" \
+		--go_opt="Mwire/blockref.proto=./wire" \
+		--go_opt="Mwire/files.proto=./wire"
 
 get-deps:
 	$(GO) get

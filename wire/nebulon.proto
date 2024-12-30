@@ -2,39 +2,5 @@ syntax = "proto3";
 
 package wire;
 
-enum RefType {
-    Blob = 0;
-    RefList = 1;
-    File = 2;
-}
-
-enum CipherType {
-    None = 0;
-    AES_CBC = 1;
-    AES_CBC_ZSTD = 2;
-}
-
-message BlockRef {
-    RefType type = 1;
-    bytes oid = 2;
-    CipherType cipher = 3;
-    bytes key = 4;
-    bytes iv = 5;
-}
-
-message BlockRefList {
-    string magic = 1;
-    repeated BlockRef refs = 2;
-}
-
-message FileHead {
-    string magic = 1;
-    BlockRef graph = 4;         // for encrypted files: publicly visible references, used for GC
-    bytes private = 5;
-}
-
-// this part usually is encrypted
-message FileControl {
-    BlockRef content = 1;
-    BlockRef headers = 2;
-}
+import public "wire/files.proto";
+import public "wire/blockref.proto";

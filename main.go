@@ -57,7 +57,8 @@ func main() {
 	fs = filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
 	log.Printf("Storing file: %s\n", filename)
-	ref, err := helpers.StoreFile(fs, map[string]string{}, filename)
+	ref, err := helpers.StoreFile(fs, map[string]string{
+		"wurst": "brot" }, filename)
 
 	if err != nil {
 		panic(fmt.Sprintf("ERROR %s\n", err))
