@@ -14,5 +14,5 @@ func StoreFile(fs base.FileStore, hdr map[string]string, fn string) (wire.BlockR
 	}
 	defer file.Close()
 
-	return fs.StoreFile(file, hdr)
+	return fs.StoreStream(file, hdr)
 }

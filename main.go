@@ -22,7 +22,7 @@ const (
 var fs base.FileStore
 
 func getFile(fn string, ref wire.BlockRef) {
-	reader, headers, err := fs.ReadFile(ref)
+	reader, headers, err := fs.ReadStream(ref)
 
 	if headers != nil {
 		log.Printf("got headers\n")

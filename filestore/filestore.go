@@ -116,7 +116,7 @@ func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.Bl
 }
 
 func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
-	// load the index block
+	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
 	filehead_ref := wire.BlockRef{
 		Oid:  ref.Oid,
 		Type: ref.Type,
