@@ -85,9 +85,6 @@ func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.Bl
 
 	content_ref, err := context.storeFileStream(r, fs.encryption)
 
-	log.Printf("StoreFile: Content ref: %s\n", content_ref.Dump())
-
-	// fixme: add headers
 	key, encrypted, err := blockcrypt.EncryptFileControl(content_ref, headers, fs.encryption)
 
 	if err != nil {
@@ -103,8 +100,6 @@ func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.Bl
 	if err != nil {
 		return content_ref, fmt.Errorf("error storing file head in blockstore [%w]", err)
 	}
-
-	log.Printf("file head ref: %X\n", filehead_ref.Oid)
 
 	filehead_ref.Cipher = fs.encryption
 	filehead_ref.Key = key
