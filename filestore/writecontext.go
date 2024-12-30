@@ -93,7 +93,7 @@ func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher
 	}
 
 	ref.Type = wire.RefType_RefList
-	ref.Cipher = ctx.cipher
+	ref.Cipher = cipher
 	ref.Key = key
 	return ref, nil
 }
