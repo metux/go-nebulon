@@ -9,23 +9,23 @@ import (
 
 const (
 	//	DefaultBlockSize    = 4096 * 16
-	DefaultBlockSize     = 4096 * 1024
-	DefaultBlockListMax  = DefaultBlockSize / 80 // a blocklist entry is about 80 bytes
-	DefaultCipher = wire.CipherType_AES_CBC_ZSTD
+	DefaultBlockSize    = 4096 * 1024
+	DefaultBlockListMax = DefaultBlockSize / 80 // a blocklist entry is about 80 bytes
+	DefaultCipher       = wire.CipherType_AES_CBC_ZSTD
 )
 
 type FileStore struct {
-	BlockStore base.BlockStore
-	Encryption wire.CipherType
-	BlockSize int
+	BlockStore   base.BlockStore
+	Encryption   wire.CipherType
+	BlockSize    int
 	BlockListMax int
 }
 
 func NewFileStore(bs base.BlockStore) base.FileStore {
 	return FileStore{
-		BlockStore: bs,
-		Encryption: DefaultCipher,
-		BlockSize: DefaultBlockSize,
+		BlockStore:   bs,
+		Encryption:   DefaultCipher,
+		BlockSize:    DefaultBlockSize,
 		BlockListMax: DefaultBlockListMax,
 	}
 }

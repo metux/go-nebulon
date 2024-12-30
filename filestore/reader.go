@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/blockcrypt"
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -38,7 +38,7 @@ func (reader *fileReader) AddRef(ref wire.BlockRef) error {
 	return nil
 }
 
-func (r * fileReader) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
+func (r *fileReader) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
 	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
 	filehead_ref := wire.BlockRef{
 		Oid:  ref.Oid,
@@ -67,7 +67,7 @@ func (r * fileReader) ReadStream(ref wire.BlockRef) (io.Reader, map[string]strin
 	return r, fctrl.Headers, nil
 }
 
-func (r * fileReader) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
+func (r *fileReader) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 
 	encrypted, err := r.fs.BlockStore.LoadBlock(ref)
@@ -85,7 +85,7 @@ func (r * fileReader) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error
 	return reflist, err
 }
 
-func (r * fileReader) LoadBlock(ref wire.BlockRef) ([]byte, error) {
+func (r *fileReader) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	data, err := r.fs.BlockStore.LoadBlock(ref)
 	if err != nil {
 		return data, err
