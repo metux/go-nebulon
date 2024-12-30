@@ -2,10 +2,8 @@ package filestore
 
 import (
 	"io"
-	"log"
 
 	"github.com/metux/go-nebulon/base"
-	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -26,17 +24,6 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 		BlockStore: bs,
 		encryption: DefaultCipher,
 	}
-}
-
-func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
-	log.Printf("LoadBlock oid=%s:%s:%X key=%X\n", ref.Type, ref.Cipher, ref.Oid, ref.Key)
-
-	data, err := fs.BlockStore.LoadBlock(ref)
-	if err != nil {
-		return data, err
-	}
-
-	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
 
 func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {

@@ -16,7 +16,7 @@ type fileReader struct {
 }
 
 func (reader *fileReader) AddRef(ref wire.BlockRef) error {
-	data, err := reader.fs.LoadBlock(ref)
+	data, err := reader.LoadBlock(ref)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (r * fileReader) ReadStream(ref wire.BlockRef) (io.Reader, map[string]strin
 		Type: ref.Type,
 	}
 
-	filehead_bin, err := r.fs.LoadBlock(filehead_ref)
+	filehead_bin, err := r.LoadBlock(filehead_ref)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed loading FileHead [%w]", err)
 	}
@@ -87,4 +87,15 @@ func (r * fileReader) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error
 	// note do it in separate steps, since reflist is changed here
 	err = reflist.Unmarshal(data)
 	return reflist, err
+}
+
+func (r * fileReader) LoadBlock(ref wire.BlockRef) ([]byte, error) {
+	log.Printf("LoadBlock oid=%s:%s:%X key=%X\n", ref.Type, ref.Cipher, ref.Oid, ref.Key)
+
+	data, err := r.fs.BlockStore.LoadBlock(ref)
+	if err != nil {
+		return data, err
+	}
+
+	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
