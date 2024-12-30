@@ -2,5 +2,7 @@ syntax = "proto3";
 
 package wire;
 
-import public "wire/files.proto";
-import public "wire/blockref.proto";
+option go_package = "../wire";
+
+import public "files.proto";
+import public "blockref.proto";
