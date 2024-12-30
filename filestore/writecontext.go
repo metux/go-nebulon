@@ -82,7 +82,7 @@ func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher
 		return wire.BlockRef{}, fmt.Errorf("reflist marshal error [%w]", err)
 	}
 
-	key, encrypted, err := blockcrypt.BlockEncrypt(cipher, data)
+	key, encrypted, cipher, err := blockcrypt.BlockEncrypt(cipher, data)
 	if err != nil {
 		return wire.BlockRef{}, fmt.Errorf("writeBlockRefList: BlockEncrypt() error [%w]", err)
 	}
@@ -140,7 +140,7 @@ func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.Bloc
 }
 
 func (ctx *fileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType) (wire.BlockRef, error) {
-	key, encrypted, err := blockcrypt.BlockEncrypt(cipher, data)
+	key, encrypted, cipher, err := blockcrypt.BlockEncrypt(cipher, data)
 	if err != nil {
 		return wire.BlockRef{}, fmt.Errorf("writeDataBlock: BlockEncrypt() error [%w]", err)
 	}
@@ -159,7 +159,7 @@ func (ctx *fileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType)
 func (ctx *fileWriteContext) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	content_ref, err := ctx.storeFileStream(r, ctx.cipher)
 
-	key, encrypted, err := blockcrypt.EncryptFileControl(content_ref, headers, ctx.cipher)
+	key, encrypted, cipher, err := blockcrypt.EncryptFileControl(content_ref, headers, ctx.cipher)
 
 	if err != nil {
 		return wire.BlockRef{}, err
@@ -175,7 +175,7 @@ func (ctx *fileWriteContext) StoreStream(r io.Reader, headers map[string]string)
 		return content_ref, fmt.Errorf("error storing file head in blockstore [%w]", err)
 	}
 
-	filehead_ref.Cipher = ctx.cipher
+	filehead_ref.Cipher = cipher
 	filehead_ref.Key = key
 	filehead_ref.Type = wire.RefType_File
 	return filehead_ref, nil

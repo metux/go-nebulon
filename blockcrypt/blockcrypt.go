@@ -19,15 +19,15 @@ func BlockDecrypt(cipher wire.CipherType, key []byte, data []byte) ([]byte, erro
 	}
 }
 
-func BlockEncrypt(cipher wire.CipherType, data []byte) ([]byte, []byte, error) {
+func BlockEncrypt(cipher wire.CipherType, data []byte) ([]byte, []byte, wire.CipherType, error) {
 	switch cipher {
 	case wire.CipherType_None:
-		return []byte{}, data, nil
+		return []byte{}, data, wire.CipherType_None, nil
 	case wire.CipherType_AES_CBC:
 		return AES_Encrypt(data)
 	case wire.CipherType_AES_CBC_ZSTD:
 		return AES_ZSTD_Encrypt(data)
 	default:
-		return []byte{}, []byte{}, fmt.Errorf("unsupported cipher type: %s", cipher)
+		return []byte{}, []byte{}, cipher, fmt.Errorf("unsupported cipher type: %s", cipher)
 	}
 }
