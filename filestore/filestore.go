@@ -12,8 +12,8 @@ import (
 
 const (
 	//	BlockSize    = 4096 * 16
-	BlockSize    = 4096 * 1024
-	BlockListMax = BlockSize / 80 // a blocklist entry is about 80 bytes
+	BlockSize     = 4096 * 1024
+	BlockListMax  = BlockSize / 80 // a blocklist entry is about 80 bytes
 	DefaultCipher = wire.CipherType_AES_CBC_ZSTD
 )
 
@@ -60,7 +60,10 @@ func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 
 func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	context := fileWriteContext{
-		fs: fs,
+		fs:           fs,
+		cipher:       fs.encryption,
+		blockSize:    BlockSize,
+		blockListMax: BlockListMax,
 	}
 	return context.StoreStream(r, headers)
 }

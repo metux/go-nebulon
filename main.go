@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockstore"
 	"github.com/metux/go-nebulon/filestore"
 	"github.com/metux/go-nebulon/helpers"
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
 )
 

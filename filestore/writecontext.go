@@ -10,9 +10,11 @@ import (
 )
 
 type fileWriteContext struct {
-	fs    FileStore
-	graph wire.BlockRefList
-	cipher wire.CipherType
+	fs           FileStore
+	graph        wire.BlockRefList
+	cipher       wire.CipherType
+	blockSize    int
+	blockListMax int
 }
 
 // write out the graph unencrypted
@@ -22,7 +24,7 @@ func (ctx *fileWriteContext) AddGraphRef(ref wire.BlockRef) {
 
 func (ctx *fileWriteContext) storeFileData(r io.Reader, cipher wire.CipherType) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
-	buf := make([]byte, BlockSize)
+	buf := make([]byte, ctx.blockSize)
 	for {
 		readTotal, err := r.Read(buf)
 		if err != nil {
@@ -46,7 +48,7 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList, cipher wir
 		ctx.AddGraphRef(*ent)
 	}
 
-	if reflist.Count() <= BlockListMax {
+	if reflist.Count() <= ctx.blockListMax {
 		subref, err := ctx.writeBlockRefList(reflist, cipher)
 		// store newly created ref into the global graph
 		ctx.AddGraphRef(subref)
@@ -54,14 +56,14 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList, cipher wir
 	}
 
 	new_reflist := wire.BlockRefList{}
-	for reflist.Count() > BlockListMax {
-		sub := wire.BlockRefList{Refs: reflist.Refs[:BlockListMax]}
+	for reflist.Count() > ctx.blockListMax {
+		sub := wire.BlockRefList{Refs: reflist.Refs[:ctx.blockListMax]}
 		subref, err := ctx.writeBlockRefList(sub, cipher)
 		if err != nil {
 			return wire.BlockRef{}, err
 		}
 		new_reflist.AddRef(subref)
-		reflist.Refs = reflist.Refs[BlockListMax:]
+		reflist.Refs = reflist.Refs[ctx.blockListMax:]
 	}
 
 	if reflist.Count() > 0 {
