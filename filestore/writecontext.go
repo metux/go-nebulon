@@ -3,7 +3,6 @@ package filestore
 import (
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/wire"
@@ -17,7 +16,6 @@ type fileWriteContext struct {
 	blockListMax int
 }
 
-// write out the graph unencrypted
 func (ctx *fileWriteContext) AddGraphRef(ref wire.BlockRef) {
 	ctx.graph.AddRef(wire.BlockRef{Oid: ref.Oid})
 }
@@ -120,7 +118,6 @@ func (ctx *fileWriteContext) writeGraph() (wire.BlockRef, error) {
 	if err != nil {
 		return graph_ref, fmt.Errorf("graph write error [%w]", err)
 	}
-	log.Printf("Graph ref: %s\n", graph_ref.Dump())
 	return graph_ref, err
 }
 
@@ -138,8 +135,6 @@ func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.Bloc
 	if err != nil {
 		return wire.BlockRef{}, fmt.Errorf("error storing file head in blockstore [%w]", err)
 	}
-
-	log.Printf("file head ref: %X\n", filehead_ref.Oid)
 
 	return filehead_ref, nil
 }

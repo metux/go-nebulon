@@ -3,7 +3,6 @@ package filestore
 import (
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/blockcrypt"
@@ -61,9 +60,6 @@ func (r * fileReader) ReadStream(ref wire.BlockRef) (io.Reader, map[string]strin
 	fctrl := wire.FileControl{}
 	fctrl.Unmarshal(fctrl_bin)
 
-	log.Printf("ReadFile content %s\n", fctrl.Content.Dump())
-	log.Printf("headers: %v\n", fctrl.Headers)
-
 	if err = r.AddRef(*fctrl.Content); err != nil {
 		return nil, nil, err
 	}
@@ -90,8 +86,6 @@ func (r * fileReader) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error
 }
 
 func (r * fileReader) LoadBlock(ref wire.BlockRef) ([]byte, error) {
-	log.Printf("LoadBlock oid=%s:%s:%X key=%X\n", ref.Type, ref.Cipher, ref.Oid, ref.Key)
-
 	data, err := r.fs.BlockStore.LoadBlock(ref)
 	if err != nil {
 		return data, err
