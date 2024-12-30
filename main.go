@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"os"
 
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockstore"
 	"github.com/metux/go-nebulon/filestore"
@@ -35,25 +34,9 @@ func getFile(fn string, ref wire.BlockRef) {
 		panic(fmt.Sprintf("open reader failed: %s", err))
 	}
 
-	newf, err := os.Create(fn)
+	err = util.CopyStreamToFile(reader, fn)
 	if err != nil {
-		panic(fmt.Sprintf("open write temp file failed: %s", err))
-	}
-	defer newf.Close()
-
-	buf := make([]byte, 1024)
-	for {
-		readTotal, err := reader.Read(buf)
-		if err != nil {
-			if err != io.EOF {
-				panic(err)
-			}
-			break
-		}
-		_, err = newf.Write(buf[:readTotal])
-		if err != nil {
-			log.Printf("writing failed: %s\n", err)
-		}
+		panic(fmt.Errorf("copy failed [%w]", err))
 	}
 }
 
