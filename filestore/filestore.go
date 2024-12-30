@@ -1,7 +1,6 @@
 package filestore
 
 import (
-	"fmt"
 	"io"
 	"log"
 
@@ -27,24 +26,6 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 		BlockStore: bs,
 		encryption: DefaultCipher,
 	}
-}
-
-func (fs FileStore) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
-	reflist := wire.BlockRefList{}
-
-	encrypted, err := fs.BlockStore.LoadBlock(ref)
-	if err != nil {
-		return reflist, fmt.Errorf("failed loading blocklist block [%w]", err)
-	}
-
-	data, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, encrypted)
-	if err != nil {
-		return reflist, fmt.Errorf("failed decrypting blocklist [%w]", err)
-	}
-
-	// note do it in separate steps, since reflist is changed here
-	err = reflist.Unmarshal(data)
-	return reflist, err
 }
 
 func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {

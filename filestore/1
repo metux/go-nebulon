@@ -1,31 +1,17 @@
-func (r * FileReader) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
-	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
-	filehead_ref := wire.BlockRef{
-		Oid:  ref.Oid,
-		Type: ref.Type,
-	}
+func (r * fileReader) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
+	reflist := wire.BlockRefList{}
 
-	filehead_bin, err := fs.LoadBlock(filehead_ref)
+	encrypted, err := r.fs.BlockStore.LoadBlock(ref)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed loading FileHead [%w]", err)
+		return reflist, fmt.Errorf("failed loading blocklist block [%w]", err)
 	}
-	filehead := wire.FileHead{}
-	filehead.Unmarshal(filehead_bin)
 
-	fctrl_bin, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, filehead.Private)
+	data, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, encrypted)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error decrypting FileControl [%w]", err)
+		return reflist, fmt.Errorf("failed decrypting blocklist [%w]", err)
 	}
 
-	fctrl := wire.FileControl{}
-	fctrl.Unmarshal(fctrl_bin)
-
-	log.Printf("ReadFile content %s\n", fctrl.Content.Dump())
-	log.Printf("headers: %v\n", fctrl.Headers)
-
-	if err = reader.AddRef(*fctrl.Content); err != nil {
-		return nil, nil, err
-	}
-
-	return reader, fctrl.Headers, nil
+	// note do it in separate steps, since reflist is changed here
+	err = reflist.Unmarshal(data)
+	return reflist, err
 }
