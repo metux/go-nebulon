@@ -8,30 +8,34 @@ import (
 )
 
 const (
-	//	BlockSize    = 4096 * 16
-	BlockSize     = 4096 * 1024
-	BlockListMax  = BlockSize / 80 // a blocklist entry is about 80 bytes
+	//	DefaultBlockSize    = 4096 * 16
+	DefaultBlockSize     = 4096 * 1024
+	DefaultBlockListMax  = DefaultBlockSize / 80 // a blocklist entry is about 80 bytes
 	DefaultCipher = wire.CipherType_AES_CBC_ZSTD
 )
 
 type FileStore struct {
 	BlockStore base.BlockStore
-	encryption wire.CipherType
+	Encryption wire.CipherType
+	BlockSize int
+	BlockListMax int
 }
 
 func NewFileStore(bs base.BlockStore) base.FileStore {
 	return FileStore{
 		BlockStore: bs,
-		encryption: DefaultCipher,
+		Encryption: DefaultCipher,
+		BlockSize: DefaultBlockSize,
+		BlockListMax: DefaultBlockListMax,
 	}
 }
 
 func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	context := fileWriteContext{
 		fs:           fs,
-		cipher:       fs.encryption,
-		blockSize:    BlockSize,
-		blockListMax: BlockListMax,
+		cipher:       fs.Encryption,
+		blockSize:    fs.BlockSize,
+		blockListMax: fs.BlockListMax,
 	}
 	return context.StoreStream(r, headers)
 }
