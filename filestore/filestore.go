@@ -151,8 +151,8 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 	}
 
 	// dump graph
-	for _, ent := range context.graph.Refs {
-		log.Printf("GRAPH REF: %s\n", ent.Dump())
+	for idx, ent := range context.graph.Refs {
+		log.Printf("GRAPH %d REF: %s\n", idx, ent.Dump())
 	}
 
 	// fixme: must drop the key from content the ref !

@@ -2,6 +2,7 @@ package filestore
 
 import (
 	"io"
+	"log"
 
 	"github.com/metux/go-nebulon/wire"
 )
@@ -16,6 +17,7 @@ type fileWriteContext struct {
 func (ctx * fileWriteContext) AddGraphRef(ref wire.BlockRef) {
 	ref.Cipher = wire.CipherType_None
 	ref.Key = []byte{}
+	log.Printf("adding graph ref %s\n", ref.Dump())
 	ctx.graph.AddRef(ref)
 }
 
@@ -41,7 +43,6 @@ func (ctx * fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, err
 			return reflist, err
 		}
 		reflist.AddRef(ref)
-		ctx.graph.AddRef(ref)
 	}
 	return reflist, nil
 }

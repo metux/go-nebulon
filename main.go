@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	//	filename string = "/home/nekrad/dl/000.capture/belle0/belle_camile-2024-12-26-23-52-38.P00.mkv.00.mux.mp4"
-	filename string = "go-nebulon"
+	filename string = "/home/nekrad/dl/000.capture/elen0_tg/elen_cross-2024-09-04-04-26-03.P00.mkv.00.mux.mp4.tg.mp4"
+//	filename string = "go-nebulon"
 	tempfile string = "test1.tmp"
 )
 
