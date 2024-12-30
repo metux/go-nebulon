@@ -2,8 +2,6 @@ package filestore
 
 import (
 	"io"
-	"log"
-
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -12,19 +10,9 @@ type fileWriteContext struct {
 	graph wire.BlockRefList
 }
 
-// 2do: uniq-sort the list
 // write out the graph unencrypted
 func (ctx * fileWriteContext) AddGraphRef(ref wire.BlockRef) {
-	ref.Cipher = wire.CipherType_None
-	ref.Key = []byte{}
-	log.Printf("adding graph ref %s\n", ref.Dump())
-	ctx.graph.AddRef(ref)
-}
-
-func (ctx * fileWriteContext) AddGraphRefs(refs [] * wire.BlockRef) {
-	for _, ent := range refs {
-		ctx.AddGraphRef(*ent)
-	}
+	ctx.graph.AddRef(wire.BlockRef{Oid: ref.Oid})
 }
 
 func (ctx * fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, error) {
@@ -49,7 +37,9 @@ func (ctx * fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, err
 
 func (ctx * fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, error) {
 	// store all our refs into the global graph
-	ctx.AddGraphRefs(reflist.Refs)
+	for _, ent := range reflist.Refs {
+		ctx.AddGraphRef(*ent)
+	}
 
 	if reflist.Count() <= BlockListMax {
 		subref, err := ctx.fs.writeBlockRefList(reflist)
@@ -70,7 +60,6 @@ func (ctx * fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.Blo
 	}
 
 	if reflist.Count() > 0 {
-		ctx.AddGraphRefs(reflist.Refs)
 		subref, err := ctx.fs.writeBlockRefList(reflist)
 		if err != nil {
 			return wire.BlockRef{}, err
