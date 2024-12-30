@@ -1,4 +1,4 @@
-package blockcrypt
+package util
 
 import (
 	"bytes"

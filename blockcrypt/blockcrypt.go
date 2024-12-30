@@ -11,7 +11,7 @@ func BlockDecrypt(cipher wire.CipherType, key []byte, data []byte) ([]byte, erro
 	case wire.CipherType_None:
 		return data, nil
 	case wire.CipherType_AES_CBC:
-		return AESDecryptBlock(data, key)
+		return AES_Decrypt(data, key)
 	case wire.CipherType_AES_CBC_ZSTD:
 		return AES_ZSTD_Decrypt(data, key)
 	default:
@@ -24,7 +24,7 @@ func BlockEncrypt(cipher wire.CipherType, data []byte) ([]byte, []byte, error) {
 	case wire.CipherType_None:
 		return []byte{}, data, nil
 	case wire.CipherType_AES_CBC:
-		return AESEncryptBlock(data)
+		return AES_Encrypt(data)
 	case wire.CipherType_AES_CBC_ZSTD:
 		return AES_ZSTD_Encrypt(data)
 	default:

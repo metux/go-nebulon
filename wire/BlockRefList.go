@@ -2,8 +2,9 @@ package wire
 
 import (
 	"fmt"
-	"google.golang.org/protobuf/proto"
 	"strings"
+
+	"google.golang.org/protobuf/proto"
 )
 
 func (rl BlockRefList) Dump() string {

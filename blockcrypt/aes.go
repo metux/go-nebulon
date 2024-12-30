@@ -2,47 +2,24 @@ package blockcrypt
 
 import (
 	"crypto/aes"
-	"crypto/cipher"
 	"crypto/sha256"
 	"log"
 
+	"github.com/metux/go-nebulon/util"
 	"github.com/klauspost/compress/zstd"
 )
-
-func aes256Encrypt(data []byte, key []byte, iv []byte) ([]byte, error) {
-	bPlaintext := PKCS5Padding(data, aes.BlockSize)
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return []byte{}, err
-	}
-	ciphertext := make([]byte, len(bPlaintext))
-	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext, bPlaintext)
-	return ciphertext, nil
-}
-
-func aes256Decrypt(crypted []byte, key []byte, iv []byte) ([]byte, error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return []byte{}, err
-	}
-	decrypted := make([]byte, len(crypted))
-	mode := cipher.NewCBCDecrypter(block, iv)
-	mode.CryptBlocks(decrypted, crypted)
-	return PKCS5UnPadding(decrypted), nil
-}
 
 func ivFromKey(key []byte) []byte {
 	hashed := sha256.Sum256(key)
 	return hashed[:aes.BlockSize]
 }
 
-func AESEncryptBlock(data []byte) ([]byte, []byte, error) {
+func AES_Encrypt(data []byte) ([]byte, []byte, error) {
 	h := sha256.Sum256(data)
 	key := h[:]
 	iv := ivFromKey(key)
 
-	encrypted, err := aes256Encrypt(data, key, iv)
+	encrypted, err := util.AES256Encrypt(data, key, iv)
 	if err != nil {
 		log.Printf("EncryptBlock: encrypting block failed: %s\n", err)
 	}
@@ -50,8 +27,8 @@ func AESEncryptBlock(data []byte) ([]byte, []byte, error) {
 	return key, encrypted, nil
 }
 
-func AESDecryptBlock(data []byte, key []byte) ([]byte, error) {
-	return aes256Decrypt(data, key, ivFromKey(key))
+func AES_Decrypt(data []byte, key []byte) ([]byte, error) {
+	return util.AES256Decrypt(data, key, ivFromKey(key))
 }
 
 func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, error) {
@@ -62,11 +39,11 @@ func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, error) {
 	}
 	compressed := writer.EncodeAll(data, make([]byte, 0, len(data)))
 
-	return AESEncryptBlock(compressed)
+	return AES_Encrypt(compressed)
 }
 
 func AES_ZSTD_Decrypt(data []byte, key []byte) ([]byte, error) {
-	decrypted, err := AESDecryptBlock(data, key)
+	decrypted, err := AES_Decrypt(data, key)
 	if err != nil {
 		return []byte{}, err
 	}
