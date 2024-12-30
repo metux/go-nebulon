@@ -13,6 +13,7 @@ const (
 	//	BlockSize    = 4096 * 16
 	BlockSize    = 4096 * 1024
 	BlockListMax = BlockSize / 80 // a blocklist entry is about 80 bytes
+	DefaultCipher = wire.CipherType_AES_CBC_ZSTD
 )
 
 type FileStore struct {
@@ -23,7 +24,7 @@ type FileStore struct {
 func NewFileStore(bs base.BlockStore) base.FileStore {
 	return FileStore{
 		BlockStore: bs,
-		encryption: wire.CipherType_AES_CBC_ZSTD,
+		encryption: DefaultCipher,
 	}
 }
 
