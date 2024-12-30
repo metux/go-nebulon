@@ -35,11 +35,21 @@ func getFile(fn string, ref wire.BlockRef) {
 	}
 }
 
+func appendDir(dn string, fn string) string {
+	if dn == "." || dn == "" {
+		return fn
+	}
+	return dn+"/"+fn
+}
+
 func storeDirectory(fs base.FileStore, dir string) {
 	items, _ := ioutil.ReadDir(dir)
 	for _, item := range items {
+		fn := appendDir(dir, item.Name())
 		if item.IsDir() {
-			fmt.Println("DIR: "+item.Name())
+			fmt.Println("DIR: "+fn)
+			storeDirectory(fs, fn)
+
 //			subitems, _ := ioutil.ReadDir(item.Name())
 //			for _, subitem := range subitems {
 //				if !subitem.IsDir() {
@@ -49,7 +59,7 @@ func storeDirectory(fs base.FileStore, dir string) {
 //			}
 		} else {
 			// handle file there
-			fmt.Println("FIL: "+item.Name())
+			fmt.Println("FIL: "+fn)
 		}
 	}
 }
