@@ -47,25 +47,6 @@ func (fs FileStore) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 	return reflist, err
 }
 
-func (fs FileStore) writeDataBlock(data []byte) (wire.BlockRef, error) {
-	key, encrypted, err := blockcrypt.BlockEncrypt(fs.encryption, data)
-	if err != nil {
-		log.Printf("writeDataBlock: BlockEncrypt() error %s\n", err)
-		return wire.BlockRef{}, err
-	}
-
-	ref, err := fs.BlockStore.StoreBlock(encrypted)
-	if err != nil {
-		log.Printf("writeDataBlock: storing block failed %s\n", err)
-		return wire.BlockRef{}, err
-	}
-
-	ref.Key = key
-	ref.Cipher = fs.encryption
-
-	return ref, nil
-}
-
 func (fs FileStore) LoadBlock(ref wire.BlockRef) ([]byte, error) {
 	log.Printf("LoadBlock oid=%s:%s:%X key=%X\n", ref.Type, ref.Cipher, ref.Oid, ref.Key)
 
@@ -104,7 +85,7 @@ func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.Bl
 		fs: fs,
 	}
 
-	content_ref, err := context.storeFileStream(r)
+	content_ref, err := context.storeFileStream(r, fs.encryption)
 
 	log.Printf("StoreFile: Content ref: %s\n", content_ref.Dump())
 

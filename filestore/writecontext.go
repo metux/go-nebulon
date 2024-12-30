@@ -18,7 +18,7 @@ func (ctx *fileWriteContext) AddGraphRef(ref wire.BlockRef) {
 	ctx.graph.AddRef(wire.BlockRef{Oid: ref.Oid})
 }
 
-func (ctx *fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, error) {
+func (ctx *fileWriteContext) storeFileData(r io.Reader, cipher wire.CipherType) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 	buf := make([]byte, BlockSize)
 	for {
@@ -29,7 +29,7 @@ func (ctx *fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, erro
 			}
 			break
 		}
-		ref, err := ctx.fs.writeDataBlock(buf[:readTotal])
+		ref, err := ctx.writeDataBlock(buf[:readTotal], cipher)
 		if err != nil {
 			return reflist, err
 		}
@@ -99,8 +99,8 @@ func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher
 	return ref, nil
 }
 
-func (ctx *fileWriteContext) storeFileStream(r io.Reader) (wire.BlockRef, error) {
-	reflist, err := ctx.storeFileData(r)
+func (ctx *fileWriteContext) storeFileStream(r io.Reader, cipher wire.CipherType) (wire.BlockRef, error) {
+	reflist, err := ctx.storeFileData(r, cipher)
 	if err != nil {
 		return wire.BlockRef{}, err
 	}
@@ -144,4 +144,23 @@ func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.Bloc
 	log.Printf("file head ref: %X\n", filehead_ref.Oid)
 
 	return filehead_ref, nil
+}
+
+func (ctx *fileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType) (wire.BlockRef, error) {
+	key, encrypted, err := blockcrypt.BlockEncrypt(cipher, data)
+	if err != nil {
+		log.Printf("writeDataBlock: BlockEncrypt() error %s\n", err)
+		return wire.BlockRef{}, err
+	}
+
+	ref, err := ctx.fs.BlockStore.StoreBlock(encrypted)
+	if err != nil {
+		log.Printf("writeDataBlock: storing block failed %s\n", err)
+		return wire.BlockRef{}, err
+	}
+
+	ref.Key = key
+	ref.Cipher = cipher
+
+	return ref, nil
 }
