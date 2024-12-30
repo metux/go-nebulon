@@ -108,7 +108,7 @@ func (fs FileStore) StoreFile(r io.Reader, headers map[string]string) (wire.Bloc
 		return wire.BlockRef{}, err
 	}
 
-	content_ref, err := context.storeRefLists(reflist)
+	content_ref, err := context.storeRefLists(reflist, context.fs.encryption)
 	if err != nil {
 		log.Printf("storeRefLists() error %s\n", err)
 		return wire.BlockRef{}, err

@@ -38,14 +38,14 @@ func (ctx *fileWriteContext) storeFileData(r io.Reader) (wire.BlockRefList, erro
 	return reflist, nil
 }
 
-func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.BlockRef, error) {
+func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
 	// store all our refs into the global graph
 	for _, ent := range reflist.Refs {
 		ctx.AddGraphRef(*ent)
 	}
 
 	if reflist.Count() <= BlockListMax {
-		subref, err := ctx.writeBlockRefList(reflist)
+		subref, err := ctx.writeBlockRefList(reflist, cipher)
 		// store newly created ref into the global graph
 		ctx.AddGraphRef(subref)
 		return subref, err
@@ -54,7 +54,7 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.Bloc
 	new_reflist := wire.BlockRefList{}
 	for reflist.Count() > BlockListMax {
 		sub := wire.BlockRefList{Refs: reflist.Refs[:BlockListMax]}
-		subref, err := ctx.writeBlockRefList(sub)
+		subref, err := ctx.writeBlockRefList(sub, cipher)
 		if err != nil {
 			return wire.BlockRef{}, err
 		}
@@ -63,17 +63,17 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList) (wire.Bloc
 	}
 
 	if reflist.Count() > 0 {
-		subref, err := ctx.writeBlockRefList(reflist)
+		subref, err := ctx.writeBlockRefList(reflist, cipher)
 		if err != nil {
 			return wire.BlockRef{}, err
 		}
 		new_reflist.AddRef(subref)
 	}
 
-	return ctx.storeRefLists(new_reflist)
+	return ctx.storeRefLists(new_reflist, cipher)
 }
 
-func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList) (wire.BlockRef, error) {
+func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
 	data, err := reflist.Marshal()
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList) (wire.
 		return wire.BlockRef{}, err
 	}
 
-	key, encrypted, err := blockcrypt.BlockEncrypt(ctx.fs.encryption, data)
+	key, encrypted, err := blockcrypt.BlockEncrypt(cipher, data)
 	if err != nil {
 		log.Printf("writeBlockRefList: BlockEncrypt() error %s\n", err)
 		return wire.BlockRef{}, err
