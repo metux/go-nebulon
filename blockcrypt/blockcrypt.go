@@ -2,11 +2,15 @@ package blockcrypt
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
 )
 
 func BlockDecrypt(cipher wire.CipherType, key []byte, data []byte) ([]byte, error) {
+	defer util.TimeTrack(time.Now(), "BlockDecrypt ("+cipher.String()+")")
+
 	switch cipher {
 	case wire.CipherType_None:
 		return data, nil
@@ -20,6 +24,8 @@ func BlockDecrypt(cipher wire.CipherType, key []byte, data []byte) ([]byte, erro
 }
 
 func BlockEncrypt(cipher wire.CipherType, data []byte) ([]byte, []byte, wire.CipherType, error) {
+	defer util.TimeTrack(time.Now(), "BlockEncrypt ("+cipher.String()+")")
+
 	switch cipher {
 	case wire.CipherType_None:
 		return []byte{}, data, wire.CipherType_None, nil

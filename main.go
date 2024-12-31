@@ -89,5 +89,5 @@ func main() {
 	fs = filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
 	testFile(fs)
-	storeDirectory(fs, ".")
+//	storeDirectory(fs, ".")
 }
