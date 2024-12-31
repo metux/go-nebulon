@@ -11,8 +11,6 @@ import (
 	"github.com/metux/go-nebulon/blockstore"
 	"github.com/metux/go-nebulon/filestore"
 	"github.com/metux/go-nebulon/helpers"
-	"github.com/metux/go-nebulon/util"
-	"github.com/metux/go-nebulon/wire"
 )
 
 const (
@@ -22,20 +20,6 @@ const (
 )
 
 var fs base.FileStore
-
-func getFile(fn string, ref wire.BlockRef) {
-	reader, headers, err := fs.ReadStream(ref)
-	log.Printf("Headers: %s\n", headers)
-
-	if err != nil {
-		panic(fmt.Sprintf("open reader failed [%s]", err))
-	}
-
-	err = util.CopyStreamToFile(reader, fn)
-	if err != nil {
-		panic(fmt.Errorf("copy failed [%w]", err))
-	}
-}
 
 func appendDir(dn string, fn string) string {
 	if dn == "." || dn == "" {
