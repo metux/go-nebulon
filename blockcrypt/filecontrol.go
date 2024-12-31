@@ -7,8 +7,6 @@ import (
 )
 
 func EncryptFileControl(content_ref wire.BlockRef, headers map[string]string, cipher wire.CipherType) ([]byte, []byte, wire.CipherType, error) {
-
-	// fixme: add headers
 	fctrl := wire.FileControl{
 		Content: &content_ref,
 		Headers: headers,

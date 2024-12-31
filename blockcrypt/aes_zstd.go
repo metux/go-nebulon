@@ -2,18 +2,33 @@ package blockcrypt
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/klauspost/compress/zstd"
 	"github.com/metux/go-nebulon/wire"
+	"github.com/metux/go-nebulon/util"
 )
 
 var (
-	zipWriter, zipErrW = zstd.NewWriter(nil, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
+//	ZipLevel = zstd.SpeedFastest
+	ZipLevel = zstd.SpeedBestCompression
+	TraceZip = false
+)
+
+var (
+	zipWriter, zipErrW = zstd.NewWriter(nil, zstd.WithEncoderLevel(ZipLevel))
 	zipReader, zipErrR = zstd.NewReader(nil)
 )
 
+func zipEncode(data []byte) []byte {
+	if TraceZip {
+		defer util.TimeTrack(time.Now(), "zipEncode")
+	}
+	return zipWriter.EncodeAll(data, make([]byte, 0, len(data)))
+}
+
 func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, wire.CipherType, error) {
-	compressed := zipWriter.EncodeAll(data, make([]byte, 0, len(data)))
+	compressed := zipEncode(data)
 
 	if len(compressed) >= len(data) {
 		return AES_Encrypt(data)

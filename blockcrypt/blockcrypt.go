@@ -8,8 +8,14 @@ import (
 	"github.com/metux/go-nebulon/wire"
 )
 
+var (
+	TraceEncrypt = false
+)
+
 func BlockDecrypt(cipher wire.CipherType, key []byte, data []byte) ([]byte, error) {
-	defer util.TimeTrack(time.Now(), "BlockDecrypt ("+cipher.String()+")")
+	if TraceEncrypt {
+		defer util.TimeTrack(time.Now(), "BlockDecrypt ("+cipher.String()+")")
+	}
 
 	switch cipher {
 	case wire.CipherType_None:
@@ -24,7 +30,9 @@ func BlockDecrypt(cipher wire.CipherType, key []byte, data []byte) ([]byte, erro
 }
 
 func BlockEncrypt(cipher wire.CipherType, data []byte) ([]byte, []byte, wire.CipherType, error) {
-	defer util.TimeTrack(time.Now(), "BlockEncrypt ("+cipher.String()+")")
+	if TraceEncrypt {
+		defer util.TimeTrack(time.Now(), fmt.Sprintf("BlockEncrypt (%s) for %d bytes", cipher.String(), len(data)))
+	}
 
 	switch cipher {
 	case wire.CipherType_None:
