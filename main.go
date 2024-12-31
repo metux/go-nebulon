@@ -5,6 +5,8 @@ import (
 	"log"
 	"io/ioutil"
 
+	"github.com/udhos/equalfile"
+
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockstore"
 	"github.com/metux/go-nebulon/filestore"
@@ -26,7 +28,7 @@ func getFile(fn string, ref wire.BlockRef) {
 	log.Printf("Headers: %s\n", headers)
 
 	if err != nil {
-		panic(fmt.Sprintf("open reader failed [%w]", err))
+		panic(fmt.Sprintf("open reader failed [%s]", err))
 	}
 
 	err = util.CopyStreamToFile(reader, fn)
@@ -60,7 +62,7 @@ func storeDirectory(fs base.FileStore, dir string) {
 
 			ref, err := helpers.StoreFile(fs, map[string]string{"filename":fn}, filename)
 			if err != nil {
-				log.Printf("error storing file [%w]\n", err)
+				log.Printf("error storing file [%s]\n", err)
 			} else {
 				log.Printf("stored %s\n", ref.Dump())
 			}
@@ -83,6 +85,15 @@ func testFile(fs base.FileStore) {
 		panic(err)
 	}
 	log.Printf("Pulled file: headers=%s\n", headers)
+
+	cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
+	equal, err := cmp.CompareFile(filename, tempfile)
+
+	if equal {
+		log.Printf("Both files are equal [%s]\n", err)
+	} else {
+		log.Printf("Files mismatch [%s]\n", err)
+	}
 }
 
 func main() {

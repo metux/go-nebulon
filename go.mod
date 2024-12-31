@@ -4,4 +4,7 @@ go 1.22
 
 require google.golang.org/protobuf v1.36.1
 
-require github.com/klauspost/compress v1.17.11
+require (
+	github.com/klauspost/compress v1.17.11
+	github.com/udhos/equalfile v0.3.0
+)
