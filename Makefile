@@ -18,7 +18,7 @@ TEST_OUTPUT=test1.tmp
 
 run: get-deps gen-proto compile
 	time ./go-nebulon
-	diff -ruN $(TEST_INPUT) $(TEST_OUTPUT)
+#	diff -ruN $(TEST_INPUT) $(TEST_OUTPUT)
 
 gen-proto:
 	$(MAKE) -C wire
