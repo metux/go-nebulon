@@ -2,3 +2,9 @@
 * signatures ?
 * timestamps ?
 * directories
+
+
+* httpd:
+    clean it up
+    separate handlers for per-file etc
+    raw block download
