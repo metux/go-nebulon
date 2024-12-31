@@ -41,8 +41,8 @@ func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.Bl
 	if TraceWrite {
 		defer util.TimeTrack(time.Now(), "StoreStream")
 	}
-	context := fileWriteContext{
-		fs:           fs,
+	context := FileWriteContext{
+		BlockStore:   fs.BlockStore,
 		cipher:       fs.Encryption,
 		blockSize:    fs.BlockSize,
 		blockListMax: fs.BlockListMax,

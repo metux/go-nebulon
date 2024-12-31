@@ -5,22 +5,23 @@ import (
 	"io"
 
 	"github.com/metux/go-nebulon/blockcrypt"
+	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
 )
 
-type fileWriteContext struct {
-	fs           FileStore
+type FileWriteContext struct {
+	BlockStore   base.BlockStore
 	graph        wire.BlockRefList
 	cipher       wire.CipherType
 	blockSize    int
 	blockListMax int
 }
 
-func (ctx *fileWriteContext) AddGraphRef(ref wire.BlockRef) {
+func (ctx *FileWriteContext) AddGraphRef(ref wire.BlockRef) {
 	ctx.graph.AddRef(wire.BlockRef{Oid: ref.Oid})
 }
 
-func (ctx *fileWriteContext) storeFileData(r io.Reader, cipher wire.CipherType) (wire.BlockRefList, error) {
+func (ctx *FileWriteContext) storeFileData(r io.Reader, cipher wire.CipherType) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 	buf := make([]byte, ctx.blockSize)
 	for {
@@ -40,7 +41,7 @@ func (ctx *fileWriteContext) storeFileData(r io.Reader, cipher wire.CipherType) 
 	return reflist, nil
 }
 
-func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
+func (ctx *FileWriteContext) storeRefLists(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
 	// store all our refs into the global graph
 	for _, ent := range reflist.Refs {
 		ctx.AddGraphRef(*ent)
@@ -75,7 +76,7 @@ func (ctx *fileWriteContext) storeRefLists(reflist wire.BlockRefList, cipher wir
 	return ctx.storeRefLists(new_reflist, cipher)
 }
 
-func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
+func (ctx *FileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
 	data, err := reflist.Marshal()
 
 	if err != nil {
@@ -87,7 +88,7 @@ func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher
 		return wire.BlockRef{}, fmt.Errorf("writeBlockRefList: BlockEncrypt() error [%w]", err)
 	}
 
-	ref, err := ctx.fs.BlockStore.StoreBlock(encrypted)
+	ref, err := ctx.BlockStore.StoreBlock(encrypted)
 	if err != nil {
 		return ref, fmt.Errorf("writeBlockRefList: StoreBlock() error [%w]", err)
 	}
@@ -98,7 +99,7 @@ func (ctx *fileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher
 	return ref, nil
 }
 
-func (ctx *fileWriteContext) storeFileStream(r io.Reader, cipher wire.CipherType) (wire.BlockRef, error) {
+func (ctx *FileWriteContext) storeFileStream(r io.Reader, cipher wire.CipherType) (wire.BlockRef, error) {
 	reflist, err := ctx.storeFileData(r, cipher)
 	if err != nil {
 		return wire.BlockRef{}, err
@@ -112,7 +113,7 @@ func (ctx *fileWriteContext) storeFileStream(r io.Reader, cipher wire.CipherType
 	return content_ref, nil
 }
 
-func (ctx *fileWriteContext) writeGraph() (wire.BlockRef, error) {
+func (ctx *FileWriteContext) writeGraph() (wire.BlockRef, error) {
 	ctx.graph.Sort()
 	graph_ref, err := ctx.storeRefLists(ctx.graph, wire.CipherType_None)
 	if err != nil {
@@ -121,7 +122,7 @@ func (ctx *fileWriteContext) writeGraph() (wire.BlockRef, error) {
 	return graph_ref, err
 }
 
-func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.BlockRef) (wire.BlockRef, error) {
+func (ctx *FileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.BlockRef) (wire.BlockRef, error) {
 	filehead := wire.FileHead{
 		Private: encrypted,
 		Graph:   &graph_ref,
@@ -131,7 +132,7 @@ func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.Bloc
 		return wire.BlockRef{}, fmt.Errorf("error marshalling file head [%w]", err)
 	}
 
-	filehead_ref, err := ctx.fs.BlockStore.StoreBlock(filehead_bin)
+	filehead_ref, err := ctx.BlockStore.StoreBlock(filehead_bin)
 	if err != nil {
 		return wire.BlockRef{}, fmt.Errorf("error storing file head in blockstore [%w]", err)
 	}
@@ -139,13 +140,13 @@ func (ctx *fileWriteContext) writeFileHead(encrypted []byte, graph_ref wire.Bloc
 	return filehead_ref, nil
 }
 
-func (ctx *fileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType) (wire.BlockRef, error) {
+func (ctx *FileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType) (wire.BlockRef, error) {
 	key, encrypted, cipher, err := blockcrypt.BlockEncrypt(cipher, data)
 	if err != nil {
 		return wire.BlockRef{}, fmt.Errorf("writeDataBlock: BlockEncrypt() error [%w]", err)
 	}
 
-	ref, err := ctx.fs.BlockStore.StoreBlock(encrypted)
+	ref, err := ctx.BlockStore.StoreBlock(encrypted)
 	if err != nil {
 		return wire.BlockRef{}, fmt.Errorf("writeDataBlock: storing block failed [%w]", err)
 	}
@@ -156,7 +157,7 @@ func (ctx *fileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType)
 	return ref, nil
 }
 
-func (ctx *fileWriteContext) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+func (ctx *FileWriteContext) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	content_ref, err := ctx.storeFileStream(r, ctx.cipher)
 
 	key, encrypted, cipher, err := blockcrypt.EncryptFileControl(content_ref, headers, ctx.cipher)
