@@ -45,21 +45,25 @@ func appendDir(dn string, fn string) string {
 func storeDirectory(fs base.FileStore, dir string) {
 	items, _ := ioutil.ReadDir(dir)
 	for _, item := range items {
-		fn := appendDir(dir, item.Name())
+		name := item.Name()
+		if name[0] == '.' {
+			continue
+		}
+
+		fn := appendDir(dir, name)
 		if item.IsDir() {
 			fmt.Println("DIR: "+fn)
 			storeDirectory(fs, fn)
-
-//			subitems, _ := ioutil.ReadDir(item.Name())
-//			for _, subitem := range subitems {
-//				if !subitem.IsDir() {
-//					// handle file there
-//					fmt.Println(item.Name() + "/" + subitem.Name())
-//				}
-//			}
 		} else {
 			// handle file there
 			fmt.Println("FIL: "+fn)
+
+			ref, err := helpers.StoreFile(fs, map[string]string{"filename":fn}, filename)
+			if err != nil {
+				log.Printf("error storing file [%w]\n", err)
+			} else {
+				log.Printf("stored %s\n", ref.Dump())
+			}
 		}
 	}
 }
