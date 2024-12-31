@@ -3,8 +3,8 @@ package blockcrypt
 import (
 	"fmt"
 
-	"github.com/metux/go-nebulon/wire"
 	"github.com/metux/go-nebulon/util"
+	"github.com/metux/go-nebulon/wire"
 )
 
 func AES_ZSTD_Encrypt(data []byte) ([]byte, []byte, wire.CipherType, error) {

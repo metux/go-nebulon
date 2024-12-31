@@ -1,8 +1,8 @@
 package util
 
 import (
-	"time"
 	"log"
+	"time"
 )
 
 func TimeTrack(start time.Time, name string) {

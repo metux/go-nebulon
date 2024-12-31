@@ -1,11 +1,11 @@
 package httpd
 
 import (
-	"strings"
 	"errors"
 	"fmt"
 	"net/textproto"
 	"strconv"
+	"strings"
 )
 
 // errNoOverlap is returned by serveContent's parseRange if first-byte-pos of

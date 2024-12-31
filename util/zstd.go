@@ -8,7 +8,7 @@ import (
 
 // configuration section
 var (
-//	ZipLevel = zstd.SpeedFastest
+	//	ZipLevel = zstd.SpeedFastest
 	ZipLevel = zstd.SpeedBestCompression
 	TraceZip = false
 )

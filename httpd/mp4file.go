@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (server * Server) MP4File(ctx *gin.Context) {
+func (server *Server) MP4File(ctx *gin.Context) {
 	reader, headers, err := server.fs.ReadStream(server.Ref)
 
 	if err != nil {

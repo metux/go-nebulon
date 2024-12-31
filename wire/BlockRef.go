@@ -16,7 +16,7 @@ func RefForBlock(data []byte) BlockRef {
 func (ref BlockRef) Dump() string {
 	s := fmt.Sprintf("%s:%X:%X", ref.Type, ref.Oid, ref.Key)
 	if ref.Name != "" {
-		s = s + " <"+ref.Name+">"
+		s = s + " <" + ref.Name + ">"
 	}
 	return s
 }

@@ -4,8 +4,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/base"
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
 )
 
