@@ -2,9 +2,16 @@ package filestore
 
 import (
 	"io"
+	"time"
 
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
+)
+
+// configuration section
+var (
+	TraceWrite = false
 )
 
 const (
@@ -31,6 +38,9 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 }
 
 func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+	if TraceWrite {
+		defer util.TimeTrack(time.Now(), "StoreStream")
+	}
 	context := fileWriteContext{
 		fs:           fs,
 		cipher:       fs.Encryption,
