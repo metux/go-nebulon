@@ -41,7 +41,15 @@ func (ctx *FileWriteContext) storeFileData(r io.Reader, cipher wire.CipherType) 
 	return reflist, nil
 }
 
-func (ctx *FileWriteContext) storeRefLists(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
+// Recursively store BlockRef list
+//
+// If the list is too long for one block, it's splitted into several ones, and
+// their refs in turn are stored in another block - that goes on recursively
+// (forming a ref tree), until we've got only one BlockRef left.
+//
+// The created BlockRef's are of type `RefList`. Input BlockRef's may be of
+// any type.
+func (ctx *FileWriteContext) StoreRefLists(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
 	// store all our refs into the global graph
 	for _, ent := range reflist.Refs {
 		ctx.AddGraphRef(*ent)
@@ -73,7 +81,7 @@ func (ctx *FileWriteContext) storeRefLists(reflist wire.BlockRefList, cipher wir
 		new_reflist.AddRef(subref)
 	}
 
-	return ctx.storeRefLists(new_reflist, cipher)
+	return ctx.StoreRefLists(new_reflist, cipher)
 }
 
 func (ctx *FileWriteContext) writeBlockRefList(reflist wire.BlockRefList, cipher wire.CipherType) (wire.BlockRef, error) {
@@ -105,7 +113,7 @@ func (ctx *FileWriteContext) storeFileStream(r io.Reader, cipher wire.CipherType
 		return wire.BlockRef{}, err
 	}
 
-	content_ref, err := ctx.storeRefLists(reflist, ctx.cipher)
+	content_ref, err := ctx.StoreRefLists(reflist, ctx.cipher)
 	if err != nil {
 		return wire.BlockRef{}, err
 	}
@@ -115,7 +123,7 @@ func (ctx *FileWriteContext) storeFileStream(r io.Reader, cipher wire.CipherType
 
 func (ctx *FileWriteContext) writeGraph() (wire.BlockRef, error) {
 	ctx.graph.Sort()
-	graph_ref, err := ctx.storeRefLists(ctx.graph, wire.CipherType_None)
+	graph_ref, err := ctx.StoreRefLists(ctx.graph, wire.CipherType_None)
 	if err != nil {
 		return graph_ref, fmt.Errorf("graph write error [%w]", err)
 	}
