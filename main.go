@@ -16,11 +16,11 @@ import (
 )
 
 const (
-// filename string = "go-nebulon"
+	// filename string = "go-nebulon"
 	filename string = "/home/nekrad/dl/000.capture/elen0_tg/elen_cross-2024-09-04-04-26-03.P00.mkv.00.mux.mp4.tg.mp4"
 
 	test_temp_file = ".download.tmp"
-	server_port = ":8080"
+	server_port    = ":8080"
 )
 
 func runServer(fs base.FileStore) {
@@ -29,7 +29,6 @@ func runServer(fs base.FileStore) {
 	log.Printf("UP: %s\n", srv.Ref.Dump())
 	srv.Run(server_port)
 }
-
 
 func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
 	fn := path + "/" + entry.Name
@@ -54,6 +53,7 @@ func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
 
 		log.Printf("file %s OK\n", fn)
 	} else if entry.IsDir() {
+		//		err := compareEntries(fs, fn,
 		log.Printf("skipping dir %s\n", fn)
 	} else {
 		return fmt.Errorf("unexpected object, neither dir nor file")
@@ -72,6 +72,14 @@ func compareEntries(fs base.FileStore, path string, entries []wire.BlockRef) err
 	return nil
 }
 
+func CompareTree(fs base.FileStore, path string, ref wire.BlockRef) error {
+	entries, err := fs.ReadDirectory(ref)
+	if err != nil {
+		return err
+	}
+	return compareEntries(fs, ".", entries)
+}
+
 func main() {
 	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
@@ -88,6 +96,10 @@ func main() {
 	}
 
 	if err = compareEntries(fs, ".", entries); err != nil {
+		panic(err)
+	}
+
+	if err = CompareTree(fs, ".", ref); err != nil {
 		panic(err)
 	}
 
