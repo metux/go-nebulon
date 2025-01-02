@@ -4,22 +4,22 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/base"
+	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/wire"
 )
 
 type FileWriteContext struct {
 	// the underlying BlockStore to write into
-	BlockStore   base.BlockStore
+	BlockStore base.BlockStore
 	// publicly visible block references: only used for garbage collect,
 	// not suitable for reconstructing the original object, just listing
 	// all other Blocks that are needed somehow
-	Grabs        wire.BlockRefList
+	Grabs wire.BlockRefList
 	// the CipherType to use for encrypting data blocks
-	Cipher       wire.CipherType
+	Cipher wire.CipherType
 	// size of data blocks when storing a stream
-	DataBlockSize    int
+	DataBlockSize int
 	// max number of BlockRef entries when creating BlockList's
 	// bigger lists will be splitted into separate BlockList objects.
 	BlockListMax int
@@ -176,7 +176,11 @@ func (ctx *FileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType)
 func (ctx *FileWriteContext) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	content_ref, err := ctx.storeFileStream(r, ctx.Cipher)
 
-	key, encrypted, cipher, err := blockcrypt.EncryptFileControl(content_ref, headers, ctx.Cipher)
+	key, encrypted, cipher, err := blockcrypt.EncryptFileControl(ctx.Cipher,
+		wire.FileControl{
+			Content:   &content_ref,
+			Headers:   headers,
+			Directory: false})
 
 	if err != nil {
 		return wire.BlockRef{}, err

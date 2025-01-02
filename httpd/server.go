@@ -12,7 +12,7 @@ import (
 type Server struct {
 	Router *gin.Engine
 	fs     base.FileStore
-	Ref wire.BlockRef
+	Ref    wire.BlockRef
 }
 
 func NewServer(fs base.FileStore) *Server {

@@ -6,11 +6,7 @@ import (
 	"github.com/metux/go-nebulon/wire"
 )
 
-func EncryptFileControl(content_ref wire.BlockRef, headers map[string]string, cipher wire.CipherType) ([]byte, []byte, wire.CipherType, error) {
-	fctrl := wire.FileControl{
-		Content: &content_ref,
-		Headers: headers,
-	}
+func EncryptFileControl(cipher wire.CipherType, fctrl wire.FileControl) ([]byte, []byte, wire.CipherType, error) {
 	data, err := fctrl.Marshal()
 	if err != nil {
 		return []byte{}, []byte{}, cipher, fmt.Errorf("failed marshalling FileControl [%w]", err)
