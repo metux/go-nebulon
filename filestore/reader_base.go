@@ -41,9 +41,15 @@ func (r ReaderBase) loadBlock(ref wire.BlockRef) ([]byte, error) {
 }
 
 func (r *ReaderBase) loadFileControl(ref wire.BlockRef) (wire.FileControl, error) {
+	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
+	filehead_ref := wire.BlockRef{
+		Oid:  ref.Oid,
+		Type: ref.Type,
+	}
+
 	fctrl := wire.FileControl{}
 
-	filehead_bin, err := r.loadBlock(ref)
+	filehead_bin, err := r.loadBlock(filehead_ref)
 	if err != nil {
 		return fctrl, fmt.Errorf("failed loading FileHead [%w]", err)
 	}
