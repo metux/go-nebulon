@@ -70,7 +70,6 @@ func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, er
 	if err != nil {
 		return content_ref, err
 	}
-	log.Printf("DIR reflist: %s\n", content_ref.Dump())
 
 	return ctx.StoreFileControl(
 		wire.FileControl{
