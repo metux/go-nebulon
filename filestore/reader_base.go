@@ -39,3 +39,23 @@ func (r ReaderBase) loadBlock(ref wire.BlockRef) ([]byte, error) {
 
 	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
+
+func (r *ReaderBase) loadFileControl(ref wire.BlockRef) (wire.FileControl, error) {
+	fctrl := wire.FileControl{}
+
+	filehead_bin, err := r.loadBlock(ref)
+	if err != nil {
+		return fctrl, fmt.Errorf("failed loading FileHead [%w]", err)
+	}
+	filehead := wire.FileHead{}
+	filehead.Unmarshal(filehead_bin)
+
+	fctrl_bin, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, filehead.Private)
+	if err != nil {
+		return fctrl, fmt.Errorf("error decrypting FileControl [%w]", err)
+	}
+
+	fctrl.Unmarshal(fctrl_bin)
+
+	return fctrl, nil
+}
