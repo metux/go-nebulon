@@ -15,7 +15,7 @@ type fileReader struct {
 }
 
 func (reader *fileReader) AddRef(ref wire.BlockRef) error {
-	data, err := reader.LoadBlock(ref)
+	data, err := reader.loadBlock(ref)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (r *fileReader) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, erro
 		Type: ref.Type,
 	}
 
-	filehead_bin, err := r.LoadBlock(filehead_ref)
+	filehead_bin, err := r.loadBlock(filehead_ref)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed loading FileHead [%w]", err)
 	}
@@ -85,7 +85,7 @@ func (r *fileReader) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error)
 	return reflist, err
 }
 
-func (r *fileReader) LoadBlock(ref wire.BlockRef) ([]byte, error) {
+func (r *fileReader) loadBlock(ref wire.BlockRef) ([]byte, error) {
 	data, err := r.fs.BlockStore.LoadBlock(ref)
 	if err != nil {
 		return data, err
