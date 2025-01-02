@@ -15,7 +15,7 @@ const (
 	//	filename string = "/home/nekrad/dl/000.capture/elen0_tg/elen_cross-2024-09-04-04-26-03.P00.mkv.00.mux.mp4.tg.mp4"
 	filename string = "../go-nebulon"
 	tempfile string = "../test1.tmp"
-	dirname  string = "."
+	dirname  string = ".."
 )
 
 var (
@@ -55,9 +55,10 @@ func Test_PutGet_1(t *testing.T) {
 }
 
 func Test_PutDir_1(t *testing.T) {
-	t.Logf("Storing directory: %s\n", filename)
+	t.Logf("Storing directory: %s\n", dirname)
 
-	ref, err := PutDirectory(fs, ".", util.FilterSkipHidden)
+	//	TracePutDirectory = true
+	ref, err := PutDirectory(fs, dirname, util.FilterSkipHidden)
 
 	if err != nil {
 		t.Fatalf("storing failed: %e", err)
