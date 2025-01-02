@@ -28,7 +28,7 @@ type FileStore struct {
 	BlockListMax int
 }
 
-func NewFileStore(bs base.BlockStore) base.FileStore {
+func NewFileStore(bs base.BlockStore) FileStore {
 	return FileStore{
 		BlockStore:   bs,
 		Encryption:   DefaultCipher,
@@ -81,6 +81,8 @@ func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, er
 }
 
 func (fs FileStore) OpenDirectory(ref wire.BlockRef) (DirHandle, error) {
-	return DirHandle{
-		readerBase: readerBase{BlockStore: fs.BlockStore}}, nil
+	d := DirHandle{
+		readerBase: readerBase{BlockStore: fs.BlockStore}}
+	err := d.Load(ref)
+	return d, err
 }

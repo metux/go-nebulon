@@ -17,8 +17,6 @@ const (
 // filename string = "go-nebulon"
 )
 
-var fs base.FileStore
-
 func runServer(fs base.FileStore) {
 	srv := httpd.NewServer(fs)
 	srv.DoUpload(filename, "video/mp4")
@@ -27,7 +25,7 @@ func runServer(fs base.FileStore) {
 }
 
 func main() {
-	fs = filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
+	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
 	ref, err := helpers.PutDirectory(fs, ".", util.FilterSkipHidden)
 	if err != nil {
@@ -35,5 +33,14 @@ func main() {
 	}
 
 	log.Printf("Dir ref %s\n", ref.Dump())
+
+	dir, err := fs.OpenDirectory(ref)
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("DIR %+v\n", dir)
+
 	// runServer(fs)
 }
