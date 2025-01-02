@@ -33,13 +33,6 @@ func itertest(yield func(int) bool) {
 }
 
 func main() {
-//	for x := range itertest(func(x int) bool {
-//		log.Printf("X=%d\n", x)
-//		return true
-//	}) {
-//		log.Printf("GOT %d\n", x)
-//	}
-
 	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
 	ref, err := helpers.PutDirectory(fs, "", ".", util.FilterSkipHidden)
@@ -55,9 +48,8 @@ func main() {
 		panic(err)
 	}
 
-	//	log.Printf("DIR %+v\n", dir)
-	for idx, ent := range dir.Entries {
-		log.Printf("dirent: %d %s\n", idx, ent.Ref.Dump())
+	for ent := range dir.Iter {
+		log.Printf("dirent: %s\n", ent.Ref.Dump())
 	}
 
 	// runServer(fs)

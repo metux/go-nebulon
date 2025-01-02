@@ -50,3 +50,11 @@ func (dh *DirHandle) addRef(ref wire.BlockRef) error {
 
 	return nil
 }
+
+func (dh * DirHandle) Iter(yield func(DirEntry) bool) {
+	for _, s := range dh.Entries {
+		if !yield(s) {
+			return
+		}
+	}
+}
