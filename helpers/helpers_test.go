@@ -58,10 +58,15 @@ func Test_PutDir_1(t *testing.T) {
 	t.Logf("Storing directory: %s\n", dirname)
 
 	//	TracePutDirectory = true
-	ref, err := PutDirectory(fs, dirname, util.FilterSkipHidden)
+	ref, err := PutDirectory(fs, "", dirname, util.FilterSkipHidden)
 
 	if err != nil {
-		t.Fatalf("storing failed: %e", err)
+		t.Fatalf("storing failed: %s", err)
 	}
 	t.Logf("Stored dir ref %s", ref.Dump())
+
+	if err := CompareTree(fs, dirname, ref, tempfile); err != nil {
+		t.Fatalf("CompareTree() failed: %s", err)
+	}
+	t.Logf("CompareTree() done")
 }
