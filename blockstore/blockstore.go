@@ -34,7 +34,7 @@ func (s SimpleStore) StoreBlock(data []byte) (wire.BlockRef, error) {
 
 	// dont write already existing objects
 	// 2do: we could check equality here
-	if _, err := os.Stat(fn); err != nil {
+	if _, err := os.Stat(fn); err == nil {
 		if TraceWrite {
 			log.Printf("object already exists %s\n", fn)
 		}

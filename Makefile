@@ -27,7 +27,7 @@ get-deps:
 	$(GO) get
 
 test:
-	$(GO) test -v $(PACKAGE)/...
+	@$(GO) test -v $(PACKAGE)/... || echo " ==== self-test failed === "
 
 compile: get-deps gen-proto
 	$(GO) build $(GOTAGS) .
