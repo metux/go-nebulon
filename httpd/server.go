@@ -29,7 +29,7 @@ func (s *Server) DoUpload(fn string, ct string) {
 	log.Printf("uploading file %s\n", fn)
 	ref, err := helpers.StoreFile(s.fs,
 		"",
-		map[string]string{"Content-Type": ct},
+		wire.Header{wire.Header_ContentType: ct},
 		fn)
 	if err != nil {
 		panic(err)
