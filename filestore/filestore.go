@@ -63,6 +63,8 @@ func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, error
 }
 
 func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, error) {
+	defer util.TimeTrack(time.Now(), "StoreDirectory")
+
 	ctx := fs.mkWriter()
 
 	content_ref, err := ctx.StoreRefLists(entries, ctx.Cipher)

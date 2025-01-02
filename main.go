@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockstore"
@@ -22,34 +24,17 @@ const (
 
 var fs base.FileStore
 
-func appendDir(dn string, fn string) string {
-	if dn == "." || dn == "" {
-		return fn
-	}
-	return dn + "/" + fn
-}
-
-func fnFilter(name string, path string) bool {
-	return true
-}
-
 func storeDirectory(fs base.FileStore, dirname string, filter util.FileNameFilter) (wire.BlockRef, error) {
 	log.Printf("Directory: %s\n", dirname)
 	items, _ := ioutil.ReadDir(dirname)
 	refEntries := wire.BlockRefList{}
 	for _, item := range items {
 		name := item.Name()
-		log.Printf("File entry: %s\n", name)
-		if util.PathIsSelf(name) {
-			log.Printf("skipping self")
-			continue
-		}
 		if !filter(name, dirname) {
-			log.Printf("skipped file")
 			continue
 		}
 
-		fn := appendDir(dirname, name)
+		fn := filepath.Clean(dirname + string(os.PathSeparator) + name)
 		if item.IsDir() {
 			ref, err := storeDirectory(fs, fn, filter)
 			if err != nil {
