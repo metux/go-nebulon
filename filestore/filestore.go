@@ -2,7 +2,6 @@ package filestore
 
 import (
 	"io"
-	"log"
 	"time"
 
 	"github.com/metux/go-nebulon/base"
