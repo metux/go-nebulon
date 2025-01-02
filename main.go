@@ -38,43 +38,23 @@ func panicX(err error) {
 
 func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
 	fn := path + "/" + entry.Name
-	log.Printf("FILE: %s --- %s\n", fn, entry.Dump())
 
 	if entry.IsFile() {
-		_, err := helpers.GetFile(fs, test_temp_file, entry)
-		if err != nil {
+		if _, err := helpers.GetFile(fs, test_temp_file, entry); err != nil {
 			return err
 		}
-
 		cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
-		equal, err := cmp.CompareFile(test_temp_file, fn)
-
-		if err != nil {
+		if equal, err := cmp.CompareFile(test_temp_file, fn); err != nil || !equal {
 			return fmt.Errorf("compare error [%w]", err)
 		}
-
-		if !equal {
-			return fmt.Errorf("files mismatch: %s\n", fn)
-		}
-
-		log.Printf("file %s OK\n", fn)
 	} else if entry.IsDir() {
-		//		err := compareEntries(fs, fn,
-		log.Printf("skipping dir %s\n", fn)
+		if err := CompareTree(fs, fn, entry); err != nil {
+			return err
+		}
 	} else {
 		return fmt.Errorf("unexpected object, neither dir nor file")
 	}
 
-	return nil
-}
-
-func compareEntries(fs base.FileStore, path string, entries []wire.BlockRef) error {
-	log.Printf("PATH: %s\n", path)
-	for _, e := range entries {
-		if err := compareEntry(fs, path, e); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
@@ -83,7 +63,13 @@ func CompareTree(fs base.FileStore, path string, ref wire.BlockRef) error {
 	if err != nil {
 		return err
 	}
-	return compareEntries(fs, ".", entries)
+
+	for _, e := range entries {
+		if err := compareEntry(fs, path, e); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func main() {
@@ -93,6 +79,7 @@ func main() {
 	panicX(err)
 
 	panicX(CompareTree(fs, ".", ref))
+	log.Printf("CompareTree() done\n")
 
 	// runServer(fs)
 }
