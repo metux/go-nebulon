@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	//	filename string = "/home/nekrad/dl/000.capture/elen0_tg/elen_cross-2024-09-04-04-26-03.P00.mkv.00.mux.mp4.tg.mp4"
+//	filename string = "/home/nekrad/dl/000.capture/elen0_tg/elen_cross-2024-09-04-04-26-03.P00.mkv.00.mux.mp4.tg.mp4"
 	filename string = "../go-nebulon"
 	tempfile string = "../test1.tmp"
 )
@@ -22,6 +22,7 @@ var (
 func Test_PutGet_1(t *testing.T) {
 	t.Logf("Storing file: %s\n", filename)
 	ref, err := StoreFile(fs,
+		"test1",
 		map[string]string{"Content-Type": "video/mp4"},
 		filename)
 

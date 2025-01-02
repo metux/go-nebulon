@@ -3,6 +3,7 @@ package filestore
 import (
 	"io"
 	"time"
+	"log"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/util"
@@ -37,17 +38,21 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 	}
 }
 
-func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
-	if TraceWrite {
-		defer util.TimeTrack(time.Now(), "StoreStream")
-	}
-	context := FileWriteContext{
+func (fs FileStore) mkWriter() FileWriteContext {
+	return  FileWriteContext{
 		BlockStore:    fs.BlockStore,
 		Cipher:        fs.Encryption,
 		DataBlockSize: fs.BlockSize,
 		BlockListMax:  fs.BlockListMax,
 	}
-	return context.StoreStream(r, headers)
+}
+
+func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+	if TraceWrite {
+		defer util.TimeTrack(time.Now(), "StoreStream")
+	}
+	wr := fs.mkWriter()
+	return wr.StoreStream(r, headers)
 }
 
 func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
@@ -56,4 +61,10 @@ func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string,
 	}
 
 	return reader.ReadStream(ref)
+}
+
+func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, error) {
+	context := fs.mkWriter()
+	log.Printf("%+v\n", context)
+	return wire.BlockRef{}, nil
 }

@@ -175,12 +175,20 @@ func (ctx *FileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType)
 
 func (ctx *FileWriteContext) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
 	content_ref, err := ctx.storeFileStream(r, ctx.Cipher)
+	if err != nil {
+		return wire.BlockRef{}, err
+	}
 
-	key, encrypted, cipher, err := blockcrypt.EncryptFileControl(ctx.Cipher,
+	return ctx.StoreFileControl(
 		wire.FileControl{
 			Content:   &content_ref,
 			Headers:   headers,
 			Directory: false})
+}
+
+func (ctx *FileWriteContext) StoreFileControl(fctrl wire.FileControl) (wire.BlockRef, error) {
+
+	key, encrypted, cipher, err := blockcrypt.EncryptFileControl(ctx.Cipher, fctrl)
 
 	if err != nil {
 		return wire.BlockRef{}, err
@@ -193,7 +201,7 @@ func (ctx *FileWriteContext) StoreStream(r io.Reader, headers map[string]string)
 
 	filehead_ref, err := ctx.writeFileHead(encrypted, grab_ref)
 	if err != nil {
-		return content_ref, fmt.Errorf("error storing file head in blockstore [%w]", err)
+		return wire.BlockRef{}, fmt.Errorf("error storing file head in blockstore [%w]", err)
 	}
 
 	filehead_ref.Cipher = cipher
