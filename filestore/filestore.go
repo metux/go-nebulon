@@ -43,9 +43,9 @@ func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.Bl
 	}
 	context := FileWriteContext{
 		BlockStore:   fs.BlockStore,
-		cipher:       fs.Encryption,
-		blockSize:    fs.BlockSize,
-		blockListMax: fs.BlockListMax,
+		Cipher:       fs.Encryption,
+		DataBlockSize:    fs.BlockSize,
+		BlockListMax: fs.BlockListMax,
 	}
 	return context.StoreStream(r, headers)
 }

@@ -8,7 +8,7 @@ import public "blockref.proto";
 
 message FileHead {
     string magic = 1;
-    BlockRef graph = 4;         // for encrypted files: publicly visible references, used for GC
+    BlockRef grabs = 4;         // for encrypted files: publicly visible references, used for GC
     bytes private = 5;
 }
 
