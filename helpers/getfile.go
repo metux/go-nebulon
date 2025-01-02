@@ -6,7 +6,7 @@ import (
 	"github.com/metux/go-nebulon/wire"
 )
 
-func GetFile(fs base.FileStore, fn string, ref wire.BlockRef) (map[string]string, error) {
+func GetFile(fs base.FileStore, fn string, ref wire.BlockRef) (wire.Header, error) {
 	reader, headers, err := fs.ReadStream(ref)
 
 	if err != nil {

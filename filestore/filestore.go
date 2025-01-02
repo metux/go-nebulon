@@ -47,15 +47,15 @@ func (fs FileStore) mkWriter() FileWriteContext {
 	}
 }
 
-func (fs FileStore) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+func (fs FileStore) StoreStream(r io.Reader, header wire.Header) (wire.BlockRef, error) {
 	if TraceWrite {
 		defer util.TimeTrack(time.Now(), "StoreStream")
 	}
 	wr := fs.mkWriter()
-	return wr.StoreStream(r, headers)
+	return wr.StoreStream(r, header)
 }
 
-func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
+func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, error) {
 	reader := &fileReader{
 		fs: fs,
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 type FileStore interface {
-	StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error)
-	ReadStream(wire.BlockRef) (io.Reader, map[string]string, error)
+	StoreStream(r io.Reader, header wire.Header) (wire.BlockRef, error)
+	ReadStream(wire.BlockRef) (io.Reader, wire.Header, error)
 	StoreDirectory(wire.BlockRefList) (wire.BlockRef, error)
 }

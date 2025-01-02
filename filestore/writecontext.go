@@ -173,7 +173,7 @@ func (ctx *FileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType)
 	return ref, nil
 }
 
-func (ctx *FileWriteContext) StoreStream(r io.Reader, headers map[string]string) (wire.BlockRef, error) {
+func (ctx *FileWriteContext) StoreStream(r io.Reader, header wire.Header) (wire.BlockRef, error) {
 	content_ref, err := ctx.storeFileStream(r, ctx.Cipher)
 	if err != nil {
 		return wire.BlockRef{}, err
@@ -182,7 +182,7 @@ func (ctx *FileWriteContext) StoreStream(r io.Reader, headers map[string]string)
 	return ctx.StoreFileControl(
 		wire.FileControl{
 			Content:   &content_ref,
-			Headers:   headers,
+			Headers:   header,
 			Directory: false})
 }
 

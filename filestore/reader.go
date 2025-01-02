@@ -38,7 +38,7 @@ func (reader *fileReader) AddRef(ref wire.BlockRef) error {
 	return nil
 }
 
-func (r *fileReader) ReadStream(ref wire.BlockRef) (io.Reader, map[string]string, error) {
+func (r *fileReader) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, error) {
 	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
 	filehead_ref := wire.BlockRef{
 		Oid:  ref.Oid,
