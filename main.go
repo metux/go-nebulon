@@ -29,6 +29,11 @@ func runServer(fs base.FileStore) {
 func main() {
 	fs = filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
-	helpers.PutDirectory(fs, ".", util.FilterSkipHidden)
+	ref, err := helpers.PutDirectory(fs, ".", util.FilterSkipHidden)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Dir ref %s\n", ref.Dump())
 	// runServer(fs)
 }
