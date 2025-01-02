@@ -16,26 +16,27 @@ import (
 )
 
 const (
+// filename string = "go-nebulon"
 	filename string = "/home/nekrad/dl/000.capture/elen0_tg/elen_cross-2024-09-04-04-26-03.P00.mkv.00.mux.mp4.tg.mp4"
 
-// filename string = "go-nebulon"
+	test_temp_file = ".download.tmp"
+	server_port = ":8080"
 )
 
 func runServer(fs base.FileStore) {
 	srv := httpd.NewServer(fs)
-	srv.DoUpload(filename, "video/mp4")
+	srv.DoUpload(filename, wire.ContentType_MP4)
 	log.Printf("UP: %s\n", srv.Ref.Dump())
-	srv.Run(":8080")
+	srv.Run(server_port)
 }
 
-const test_temp_file = ".download.tmp"
 
 func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
 	fn := path + "/" + entry.Name
 	log.Printf("FILE: %s --- %s\n", fn, entry.Dump())
 
 	if entry.IsFile() {
-		headers, err := helpers.GetFile(fs, test_temp_file, entry)
+		_, err := helpers.GetFile(fs, test_temp_file, entry)
 		if err != nil {
 			return err
 		}
@@ -44,14 +45,14 @@ func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
 		equal, err := cmp.CompareFile(test_temp_file, fn)
 
 		if err != nil {
-			panic(fmt.Errorf("compare error [%w]", err))
+			return fmt.Errorf("compare error [%w]", err)
 		}
 
-		if equal {
-			log.Printf("file %s OK\n", fn)
-		} else {
-			panic(fmt.Errorf("files mismatch: %s\n", fn))
+		if !equal {
+			return fmt.Errorf("files mismatch: %s\n", fn)
 		}
+
+		log.Printf("file %s OK\n", fn)
 	} else if entry.IsDir() {
 		log.Printf("skipping dir %s\n", fn)
 	} else {
