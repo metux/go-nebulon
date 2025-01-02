@@ -28,7 +28,7 @@ func appendDir(dn string, fn string) string {
 	return dn + "/" + fn
 }
 
-func storeDirectory(fs base.FileStore, dir string, prefix string) {
+func storeDirectory(fs base.FileStore, dir string, prefix string) error {
 	log.Printf("Directory: %s %s\n", prefix, dir)
 	items, _ := ioutil.ReadDir(dir)
 	refEntries := make([]wire.BlockRef, 0)
@@ -40,16 +40,16 @@ func storeDirectory(fs base.FileStore, dir string, prefix string) {
 
 		fn := appendDir(dir, name)
 		if item.IsDir() {
-			storeDirectory(fs, fn, prefix+"/"+dir)
+			if err := storeDirectory(fs, fn, prefix+"/"+dir); err != nil {
+				return err
+			}
 		} else {
 			// handle file there
-			ref, err := helpers.StoreFile(fs, map[string]string{"filename": fn}, fn)
+			ref, err := helpers.StoreFile(fs, name, map[string]string{"filename": fn}, fn)
 			if err != nil {
-				panic(fmt.Errorf("error storing file [%w]\n", err))
-			} else {
-				ref.Name = name
-				refEntries = append(refEntries, ref)
+				return fmt.Errorf("error storing file [%w]\n", err)
 			}
+			refEntries = append(refEntries, ref)
 		}
 	}
 
@@ -57,6 +57,8 @@ func storeDirectory(fs base.FileStore, dir string, prefix string) {
 	for idx, ent := range refEntries {
 		log.Printf("[%d] %s\n", idx, ent.Dump())
 	}
+
+	return nil
 }
 
 func runServer(fs base.FileStore) {

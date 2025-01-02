@@ -8,3 +8,6 @@
     clean it up
     separate handlers for per-file etc
     raw block download
+
+* file head:
+    include blockref lists ?
