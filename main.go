@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"log"
-
-	"github.com/udhos/equalfile"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockstore"
@@ -36,49 +33,13 @@ func panicX(err error) {
 	}
 }
 
-func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
-	fn := path + "/" + entry.Name
-
-	if entry.IsFile() {
-		if _, err := helpers.GetFile(fs, test_temp_file, entry); err != nil {
-			return err
-		}
-		cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
-		if equal, err := cmp.CompareFile(test_temp_file, fn); err != nil || !equal {
-			return fmt.Errorf("compare error [%w]", err)
-		}
-	} else if entry.IsDir() {
-		if err := CompareTree(fs, fn, entry); err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("unexpected object, neither dir nor file")
-	}
-
-	return nil
-}
-
-func CompareTree(fs base.FileStore, path string, ref wire.BlockRef) error {
-	entries, err := fs.ReadDirectory(ref)
-	if err != nil {
-		return err
-	}
-
-	for _, e := range entries {
-		if err := compareEntry(fs, path, e); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func main() {
 	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
 	ref, err := helpers.PutDirectory(fs, "", ".", util.FilterSkipHidden)
 	panicX(err)
 
-	panicX(CompareTree(fs, ".", ref))
+	panicX(helpers.CompareTree(fs, ".", ref, test_temp_file))
 	log.Printf("CompareTree() done\n")
 
 	// runServer(fs)
