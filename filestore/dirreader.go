@@ -3,13 +3,13 @@ package filestore
 import (
 	"log"
 
-	"github.com/metux/go-nebulon/base"
+	//	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
 )
 
 type DirHandle struct {
-	BlockStore base.BlockStore
-	Ref        wire.BlockRef
+	ReaderBase
+	Ref wire.BlockRef
 }
 
 func (dh *DirHandle) Load(ref wire.BlockRef) error {

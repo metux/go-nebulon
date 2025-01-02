@@ -81,5 +81,6 @@ func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, er
 }
 
 func (fs FileStore) OpenDirectory(ref wire.BlockRef) (DirHandle, error) {
-	return DirHandle{Ref: ref}, nil
+	return DirHandle{
+		ReaderBase: ReaderBase{BlockStore: fs.BlockStore}}, nil
 }
