@@ -14,17 +14,12 @@ type DirHandle struct {
 }
 
 func (dh *DirHandle) Load(ref wire.BlockRef) error {
-	log.Printf("Loading ... %s\n", ref.Dump())
-
 	fctrl, err := dh.loadFileControl(ref)
 	if err != nil {
 		panic(err)
 	}
 
 	dh.addRef(*fctrl.Content)
-
-	log.Printf("%+v\n", fctrl)
-
 	return nil
 }
 

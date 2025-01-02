@@ -29,6 +29,6 @@ func (ref BlockRef) IsDir() bool {
 	return ref.Type == RefType_Directory
 }
 
-func (ref BlockRef) isFile() bool {
+func (ref BlockRef) IsFile() bool {
 	return ref.Type == RefType_File
 }

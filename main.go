@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
+
+	"github.com/udhos/equalfile"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockstore"
@@ -9,6 +12,7 @@ import (
 	"github.com/metux/go-nebulon/helpers"
 	"github.com/metux/go-nebulon/httpd"
 	"github.com/metux/go-nebulon/util"
+	"github.com/metux/go-nebulon/wire"
 )
 
 const (
@@ -24,6 +28,49 @@ func runServer(fs base.FileStore) {
 	srv.Run(":8080")
 }
 
+const test_temp_file = ".download.tmp"
+
+func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
+	fn := path + "/" + entry.Name
+	log.Printf("FILE: %s --- %s\n", fn, entry.Dump())
+
+	if entry.IsFile() {
+		headers, err := helpers.GetFile(fs, test_temp_file, entry)
+		if err != nil {
+			return err
+		}
+
+		cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
+		equal, err := cmp.CompareFile(test_temp_file, fn)
+
+		if err != nil {
+			panic(fmt.Errorf("compare error [%w]", err))
+		}
+
+		if equal {
+			log.Printf("file %s OK\n", fn)
+		} else {
+			panic(fmt.Errorf("files mismatch: %s\n", fn))
+		}
+	} else if entry.IsDir() {
+		log.Printf("skipping dir %s\n", fn)
+	} else {
+		return fmt.Errorf("unexpected object, neither dir nor file")
+	}
+
+	return nil
+}
+
+func compareEntries(fs base.FileStore, path string, entries []wire.BlockRef) error {
+	log.Printf("PATH: %s\n", path)
+	for _, e := range entries {
+		if err := compareEntry(fs, path, e); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func main() {
 	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
@@ -32,15 +79,15 @@ func main() {
 		panic(err)
 	}
 
-	log.Printf("Dir ref %s\n", ref.Dump())
+	//	log.Printf("Dir ref %s\n", ref.Dump())
 
 	entries, err := fs.ReadDirectory(ref)
 	if err != nil {
 		panic(err)
 	}
 
-	for _, ent := range entries {
-		log.Printf("dirent: %s\n", ent.Dump())
+	if err = compareEntries(fs, ".", entries); err != nil {
+		panic(err)
 	}
 
 	// runServer(fs)
