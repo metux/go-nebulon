@@ -10,7 +10,6 @@ import (
 
 type DirHandle struct {
 	readerBase
-	ents []DirEntry
 	refs []wire.BlockRef
 }
 
@@ -42,9 +41,9 @@ func (dh *DirHandle) addRef(ref wire.BlockRef) error {
 			dh.addRef(*walk)
 		}
 	case wire.RefType_File:
-		dh.ents = append(dh.ents, NewDirEntry(ref))
+		dh.refs = append(dh.refs, ref)
 	case wire.RefType_Directory:
-		dh.ents = append(dh.ents, NewDirEntry(ref))
+		dh.refs = append(dh.refs, ref)
 	default:
 		return fmt.Errorf("unsupported ref type %+v\n", ref.Type)
 	}
@@ -52,6 +51,6 @@ func (dh *DirHandle) addRef(ref wire.BlockRef) error {
 	return nil
 }
 
-func (dh *DirHandle) Entries() [] DirEntry {
-	return dh.ents
+func (dh DirHandle) Entries() [] wire.BlockRef {
+	return dh.refs
 }

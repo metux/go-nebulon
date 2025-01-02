@@ -24,3 +24,11 @@ func (ref BlockRef) Dump() string {
 func (ref BlockRef) OID() string {
 	return fmt.Sprintf("%X", ref.Oid)
 }
+
+func (ref BlockRef) IsDir() bool {
+	return ref.Type == RefType_Directory
+}
+
+func (ref BlockRef) isFile() bool {
+	return ref.Type == RefType_File
+}

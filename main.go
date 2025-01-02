@@ -48,9 +48,8 @@ func main() {
 		panic(err)
 	}
 
-//	for _, ent := range dir.Entries {
 	for _, ent := range dir.Entries() {
-		log.Printf("dirent: %s\n", ent.Ref.Dump())
+		log.Printf("dirent: %s\n", ent.Dump())
 	}
 
 	// runServer(fs)
