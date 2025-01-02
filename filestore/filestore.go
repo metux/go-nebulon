@@ -2,8 +2,8 @@ package filestore
 
 import (
 	"io"
-	"time"
 	"log"
+	"time"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/util"
@@ -39,7 +39,7 @@ func NewFileStore(bs base.BlockStore) base.FileStore {
 }
 
 func (fs FileStore) mkWriter() FileWriteContext {
-	return  FileWriteContext{
+	return FileWriteContext{
 		BlockStore:    fs.BlockStore,
 		Cipher:        fs.Encryption,
 		DataBlockSize: fs.BlockSize,
@@ -64,7 +64,16 @@ func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, error
 }
 
 func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, error) {
-	context := fs.mkWriter()
-	log.Printf("%+v\n", context)
-	return wire.BlockRef{}, nil
+	ctx := fs.mkWriter()
+
+	content_ref, err := ctx.StoreRefLists(entries, ctx.Cipher)
+	if err != nil {
+		return content_ref, err
+	}
+	log.Printf("DIR reflist: %s\n", content_ref.Dump())
+
+	return ctx.StoreFileControl(
+		wire.FileControl{
+			Content:   &content_ref,
+			Directory: true})
 }

@@ -67,3 +67,9 @@ func (b BlockRefList) Swap(i, j int) {
 func (b BlockRefList) Sort() {
 	sort.Sort(b)
 }
+
+// note: ref parameter *must* be value, not pointer, so the function is
+// actually creating a copy
+func (b *BlockRefList) Add(ref BlockRef) {
+	b.Refs = append(b.Refs, &ref)
+}
