@@ -8,6 +8,7 @@ enum RefType {
     Blob = 0;
     RefList = 1;
     File = 2;
+    Directory = 3;
 }
 
 enum CipherType {

@@ -206,6 +206,10 @@ func (ctx *FileWriteContext) StoreFileControl(fctrl wire.FileControl) (wire.Bloc
 
 	filehead_ref.Cipher = cipher
 	filehead_ref.Key = key
-	filehead_ref.Type = wire.RefType_File
+	if fctrl.Directory {
+		filehead_ref.Type = wire.RefType_Directory
+	} else {
+		filehead_ref.Type = wire.RefType_File
+	}
 	return filehead_ref, nil
 }
