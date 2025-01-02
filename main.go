@@ -40,7 +40,10 @@ func main() {
 		panic(err)
 	}
 
-	log.Printf("DIR %+v\n", dir)
+	//	log.Printf("DIR %+v\n", dir)
+	for idx, ent := range dir.Entries {
+		log.Printf("dirent: %d %s\n", idx, ent.Ref.Dump())
+	}
 
 	// runServer(fs)
 }

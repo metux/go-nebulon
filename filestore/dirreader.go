@@ -10,6 +10,7 @@ import (
 
 type DirHandle struct {
 	readerBase
+	Entries []DirEntry
 }
 
 func (dh *DirHandle) Load(ref wire.BlockRef) error {
@@ -30,9 +31,8 @@ func (dh *DirHandle) Load(ref wire.BlockRef) error {
 func (dh *DirHandle) addRef(ref wire.BlockRef) error {
 	switch ref.Type {
 	case wire.RefType_Blob:
-		log.Printf("didnt expect blob here\n")
+		log.Printf("DirHandle: didnt expect blob here\n")
 	case wire.RefType_RefList:
-		log.Printf("recursing into indirect reflist\n")
 		bl, err := dh.loadBlockList(ref)
 		if err != nil {
 			return err
@@ -41,9 +41,9 @@ func (dh *DirHandle) addRef(ref wire.BlockRef) error {
 			dh.addRef(*walk)
 		}
 	case wire.RefType_File:
-		log.Printf("file directory entry %s\n", ref.Dump())
+		dh.Entries = append(dh.Entries, NewDirEntry(ref))
 	case wire.RefType_Directory:
-		log.Printf("dir directory entry %s\n", ref.Dump())
+		dh.Entries = append(dh.Entries, NewDirEntry(ref))
 	default:
 		return fmt.Errorf("unsupported ref type %+v\n", ref.Type)
 	}
