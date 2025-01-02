@@ -90,7 +90,6 @@ func main() {
 	ref, err := helpers.PutDirectory(fs, "", ".", util.FilterSkipHidden)
 	panicX(err)
 
-	//	log.Printf("Dir ref %s\n", ref.Dump())
 	panicX(CompareTree(fs, ".", ref))
 
 	// runServer(fs)
