@@ -47,7 +47,7 @@ func storeDirectory(fs base.FileStore, dir string, prefix string) (wire.BlockRef
 			log.Printf("stored directory %s\n", ref.Dump())
 		} else {
 			// handle file there
-			ref, err := helpers.StoreFile(fs, name, map[string]string{"filename": fn}, fn)
+			ref, err := helpers.StoreFile(fs, name, wire.Header{}, fn)
 			if err != nil {
 				return wire.BlockRef{}, fmt.Errorf("error storing file [%w]\n", err)
 			}

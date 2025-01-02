@@ -23,7 +23,7 @@ func Test_PutGet_1(t *testing.T) {
 	t.Logf("Storing file: %s\n", filename)
 	ref, err := StoreFile(fs,
 		"test1",
-		map[string]string{"Content-Type": "video/mp4"},
+		wire.Header{wire.Header_ContentType: wire.ContentType_MP4},
 		filename)
 
 	if err != nil {
