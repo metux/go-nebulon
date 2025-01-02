@@ -16,4 +16,5 @@ message FileHead {
 message FileControl {
     BlockRef content = 1;
     map<string, string> headers = 2;
+    bool directory = 3;
 }
