@@ -30,15 +30,19 @@ func runServer(fs base.FileStore) {
 	srv.Run(server_port)
 }
 
+func panicX(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
 	fn := path + "/" + entry.Name
 	log.Printf("FILE: %s --- %s\n", fn, entry.Dump())
 
 	if entry.IsFile() {
 		_, err := helpers.GetFile(fs, test_temp_file, entry)
-		if err != nil {
-			return err
-		}
+		panicX(err)
 
 		cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
 		equal, err := cmp.CompareFile(test_temp_file, fn)
@@ -84,24 +88,10 @@ func main() {
 	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
 	ref, err := helpers.PutDirectory(fs, "", ".", util.FilterSkipHidden)
-	if err != nil {
-		panic(err)
-	}
+	panicX(err)
 
 	//	log.Printf("Dir ref %s\n", ref.Dump())
-
-	entries, err := fs.ReadDirectory(ref)
-	if err != nil {
-		panic(err)
-	}
-
-	if err = compareEntries(fs, ".", entries); err != nil {
-		panic(err)
-	}
-
-	if err = CompareTree(fs, ".", ref); err != nil {
-		panic(err)
-	}
+	panicX(CompareTree(fs, ".", ref))
 
 	// runServer(fs)
 }
