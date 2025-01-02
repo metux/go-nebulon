@@ -42,7 +42,9 @@ func compareEntry(fs base.FileStore, path string, entry wire.BlockRef) error {
 
 	if entry.IsFile() {
 		_, err := helpers.GetFile(fs, test_temp_file, entry)
-		panicX(err)
+		if err != nil {
+			return err
+		}
 
 		cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
 		equal, err := cmp.CompareFile(test_temp_file, fn)
