@@ -1,5 +1,0 @@
-	ref, err := helpers.PutDirectory(fs, "", ".", util.FilterSkipHidden)
-	panicX(err)
-
-	panicX(helpers.CompareTree(fs, ".", ref, test_temp_file))
-	log.Printf("CompareTree() done\n")
