@@ -51,6 +51,6 @@ func (dh *DirHandle) addRef(ref wire.BlockRef) error {
 	return nil
 }
 
-func (dh DirHandle) Entries() [] wire.BlockRef {
+func (dh DirHandle) Entries() []wire.BlockRef {
 	return dh.refs
 }

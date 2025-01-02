@@ -24,14 +24,6 @@ func runServer(fs base.FileStore) {
 	srv.Run(":8080")
 }
 
-type (
-	Seq[V any]     func(yield func(V) bool)
-	Seq2[K, V any] func(yield func(K, V) bool)
-)
-
-func itertest(yield func(int) bool) {
-}
-
 func main() {
 	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
@@ -42,13 +34,12 @@ func main() {
 
 	log.Printf("Dir ref %s\n", ref.Dump())
 
-	dir, err := fs.OpenDirectory(ref)
-
+	entries, err := fs.ReadDirectory(ref)
 	if err != nil {
 		panic(err)
 	}
 
-	for _, ent := range dir.Entries() {
+	for _, ent := range entries {
 		log.Printf("dirent: %s\n", ent.Dump())
 	}
 
