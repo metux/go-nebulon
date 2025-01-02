@@ -27,6 +27,7 @@ get-deps:
 	$(GO) get
 
 test:
+	@rm -Rf .storedata
 	@$(GO) test -v $(PACKAGE)/... || echo " ==== self-test failed === "
 
 compile: get-deps gen-proto

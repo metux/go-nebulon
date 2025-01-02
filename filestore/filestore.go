@@ -56,7 +56,7 @@ func (fs FileStore) StoreStream(r io.Reader, header wire.Header) (wire.BlockRef,
 
 func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, error) {
 	reader := &fileReader{
-		fs: fs,
+		ReaderBase: ReaderBase{BlockStore: fs.BlockStore},
 	}
 
 	return reader.ReadStream(ref)

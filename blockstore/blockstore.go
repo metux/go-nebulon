@@ -1,8 +1,8 @@
 package blockstore
 
 import (
-	"os"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/metux/go-nebulon/base"

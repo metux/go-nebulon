@@ -11,7 +11,7 @@ import (
 
 type fileReader struct {
 	util.ChainedReader
-	fs FileStore
+	ReaderBase
 }
 
 func (reader *fileReader) AddRef(ref wire.BlockRef) error {
@@ -65,31 +65,4 @@ func (r *fileReader) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, erro
 	}
 
 	return r, fctrl.Headers, nil
-}
-
-func (r *fileReader) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
-	reflist := wire.BlockRefList{}
-
-	encrypted, err := r.fs.BlockStore.LoadBlock(ref)
-	if err != nil {
-		return reflist, fmt.Errorf("failed loading blocklist block [%w]", err)
-	}
-
-	data, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, encrypted)
-	if err != nil {
-		return reflist, fmt.Errorf("failed decrypting blocklist [%w]", err)
-	}
-
-	// note do it in separate steps, since reflist is changed here
-	err = reflist.Unmarshal(data)
-	return reflist, err
-}
-
-func (r *fileReader) loadBlock(ref wire.BlockRef) ([]byte, error) {
-	data, err := r.fs.BlockStore.LoadBlock(ref)
-	if err != nil {
-		return data, err
-	}
-
-	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
