@@ -24,7 +24,22 @@ func runServer(fs base.FileStore) {
 	srv.Run(":8080")
 }
 
+type (
+	Seq[V any]     func(yield func(V) bool)
+	Seq2[K, V any] func(yield func(K, V) bool)
+)
+
+func itertest(yield func(int) bool) {
+}
+
 func main() {
+//	for x := range itertest(func(x int) bool {
+//		log.Printf("X=%d\n", x)
+//		return true
+//	}) {
+//		log.Printf("GOT %d\n", x)
+//	}
+
 	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
 	ref, err := helpers.PutDirectory(fs, "", ".", util.FilterSkipHidden)
