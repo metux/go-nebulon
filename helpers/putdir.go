@@ -17,7 +17,7 @@ var (
 	TracePutDirectory = false
 )
 
-func PutDirectory(fs base.FileStore, dirname string, filter util.FileNameFilter) (wire.BlockRef, error) {
+func PutDirectory(fs base.FileStore, name string, dirname string, filter util.FileNameFilter) (wire.BlockRef, error) {
 	if TracePutDirectory {
 		util.TimeTrack(time.Now(), "StoreDirectory ("+dirname+")")
 	}
@@ -31,13 +31,15 @@ func PutDirectory(fs base.FileStore, dirname string, filter util.FileNameFilter)
 
 		fn := filepath.Clean(dirname + string(os.PathSeparator) + name)
 		if item.IsDir() {
-			ref, err := PutDirectory(fs, fn, filter)
+			ref, err := PutDirectory(fs, name, fn, filter)
 			if err != nil {
+				log.Printf("error storing subdir %s\n", err)
 				return ref, err
 			}
 			if TracePutDirectory {
 				log.Printf("Stored directory %s\n", ref.Dump())
 			}
+			refEntries.Add(ref)
 		} else {
 			// handle file there
 			ref, err := PutFile(fs, name, wire.Header{}, fn)
@@ -51,5 +53,7 @@ func PutDirectory(fs base.FileStore, dirname string, filter util.FileNameFilter)
 		}
 	}
 
-	return fs.StoreDirectory(refEntries)
+	ref, err := fs.StoreDirectory(refEntries)
+	ref.Name = name
+	return ref, err
 }

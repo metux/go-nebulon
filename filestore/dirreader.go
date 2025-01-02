@@ -42,6 +42,8 @@ func (dh *DirHandle) addRef(ref wire.BlockRef) error {
 		}
 	case wire.RefType_File:
 		log.Printf("file directory entry %s\n", ref.Dump())
+	case wire.RefType_Directory:
+		log.Printf("dir directory entry %s\n", ref.Dump())
 	default:
 		return fmt.Errorf("unsupported ref type %+v\n", ref.Type)
 	}
