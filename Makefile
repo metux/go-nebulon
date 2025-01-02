@@ -5,15 +5,15 @@ PATH := $(PATH):/usr/lib/go-1.22/
 SHELL := /bin/bash
 PACKAGE := github.com/metux/go-nebulon
 
-GO ?= /usr/lib/go-1.22/bin/go
-# GO ?= go
+# GO ?= /usr/lib/go-1.22/bin/go
+GO ?= go
 
 EXECUTABLE=go-nebulon
 
 TEST_INPUT=./go-nebulon
 TEST_OUTPUT=test1.tmp
 
-export GOEXPERIMENT=rangefunc
+# export GOEXPERIMENT=rangefunc
 #export GODEBUG=http1debug=2
 #export GODEBUG=http2debug=2
 
