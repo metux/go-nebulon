@@ -3,7 +3,6 @@
 * timestamps ?
 * directories
 
-
 * httpd:
     clean it up
     separate handlers for per-file etc
@@ -11,3 +10,6 @@
 
 * file head:
     include blockref lists ?
+
+* ref:
+    inline data (no oid, but data)

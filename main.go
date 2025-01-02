@@ -10,6 +10,7 @@ import (
 	"github.com/metux/go-nebulon/filestore"
 	"github.com/metux/go-nebulon/helpers"
 	"github.com/metux/go-nebulon/httpd"
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -28,19 +29,29 @@ func appendDir(dn string, fn string) string {
 	return dn + "/" + fn
 }
 
-func storeDirectory(fs base.FileStore, dir string, prefix string) (wire.BlockRef, error) {
-	log.Printf("Directory: %s %s\n", prefix, dir)
-	items, _ := ioutil.ReadDir(dir)
+func fnFilter(name string, path string) bool {
+	return true
+}
+
+func storeDirectory(fs base.FileStore, dirname string, filter util.FileNameFilter) (wire.BlockRef, error) {
+	log.Printf("Directory: %s\n", dirname)
+	items, _ := ioutil.ReadDir(dirname)
 	refEntries := wire.BlockRefList{}
 	for _, item := range items {
 		name := item.Name()
-		if name[0] == '.' {
+		log.Printf("File entry: %s\n", name)
+		if util.PathIsSelf(name) {
+			log.Printf("skipping self")
+			continue
+		}
+		if !filter(name, dirname) {
+			log.Printf("skipped file")
 			continue
 		}
 
-		fn := appendDir(dir, name)
+		fn := appendDir(dirname, name)
 		if item.IsDir() {
-			ref, err := storeDirectory(fs, fn, prefix+"/"+dir)
+			ref, err := storeDirectory(fs, fn, filter)
 			if err != nil {
 				return ref, err
 			}
@@ -49,7 +60,7 @@ func storeDirectory(fs base.FileStore, dir string, prefix string) (wire.BlockRef
 			// handle file there
 			ref, err := helpers.StoreFile(fs, name, wire.Header{}, fn)
 			if err != nil {
-				return wire.BlockRef{}, fmt.Errorf("error storing file [%w]\n", err)
+				return ref, fmt.Errorf("error storing file [%w]\n", err)
 			}
 			refEntries.Add(ref)
 		}
@@ -73,6 +84,6 @@ func runServer(fs base.FileStore) {
 func main() {
 	fs = filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
-	storeDirectory(fs, ".", "")
+	storeDirectory(fs, ".", util.FilterSkipHidden)
 	// runServer(fs)
 }
