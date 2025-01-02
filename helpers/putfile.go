@@ -2,12 +2,22 @@ package helpers
 
 import (
 	"os"
+	"time"
 
 	"github.com/metux/go-nebulon/base"
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
 )
 
-func StoreFile(fs base.FileStore, name string, header wire.Header, fn string) (wire.BlockRef, error) {
+var (
+	TraceStoreFile = false
+)
+
+func PutFile(fs base.FileStore, name string, header wire.Header, fn string) (wire.BlockRef, error) {
+	if TraceStoreFile {
+		util.TimeTrack(time.Now(), "PutFile ("+fn+")")
+	}
+
 	file, err := os.Open(fn)
 	if err != nil {
 		return wire.BlockRef{}, err

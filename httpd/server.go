@@ -27,7 +27,7 @@ func NewServer(fs base.FileStore) *Server {
 
 func (s *Server) DoUpload(fn string, ct string) {
 	log.Printf("uploading file %s\n", fn)
-	ref, err := helpers.StoreFile(s.fs,
+	ref, err := helpers.PutFile(s.fs,
 		"",
 		wire.Header{wire.Header_ContentType: ct},
 		fn)

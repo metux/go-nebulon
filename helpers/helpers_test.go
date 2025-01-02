@@ -7,6 +7,7 @@ import (
 
 	"github.com/metux/go-nebulon/blockstore"
 	"github.com/metux/go-nebulon/filestore"
+	"github.com/metux/go-nebulon/wire"
 )
 
 const (
@@ -21,7 +22,7 @@ var (
 
 func Test_PutGet_1(t *testing.T) {
 	t.Logf("Storing file: %s\n", filename)
-	ref, err := StoreFile(fs,
+	ref, err := PutFile(fs,
 		"test1",
 		wire.Header{wire.Header_ContentType: wire.ContentType_MP4},
 		filename)

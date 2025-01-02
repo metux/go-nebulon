@@ -48,7 +48,7 @@ func (fs FileStore) mkWriter() FileWriteContext {
 
 func (fs FileStore) StoreStream(r io.Reader, header wire.Header) (wire.BlockRef, error) {
 	if TraceWrite {
-		defer util.TimeTrack(time.Now(), "StoreStream")
+		defer util.TimeTrack(time.Now(), "FileStore::StoreStream")
 	}
 	wr := fs.mkWriter()
 	return wr.StoreStream(r, header)
@@ -63,7 +63,9 @@ func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, error
 }
 
 func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, error) {
-	defer util.TimeTrack(time.Now(), "StoreDirectory")
+	if TraceWrite {
+		defer util.TimeTrack(time.Now(), "FileStore::StoreDirectory")
+	}
 
 	ctx := fs.mkWriter()
 
