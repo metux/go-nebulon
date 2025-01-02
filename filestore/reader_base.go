@@ -8,12 +8,12 @@ import (
 	"github.com/metux/go-nebulon/wire"
 )
 
-type ReaderBase struct {
+type readerBase struct {
 	// the underlying BlockStore to write into
 	BlockStore base.BlockStore
 }
 
-func (r ReaderBase) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
+func (r readerBase) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 
 	encrypted, err := r.BlockStore.LoadBlock(ref)
@@ -31,7 +31,7 @@ func (r ReaderBase) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 	return reflist, err
 }
 
-func (r ReaderBase) loadBlock(ref wire.BlockRef) ([]byte, error) {
+func (r readerBase) loadBlock(ref wire.BlockRef) ([]byte, error) {
 	data, err := r.BlockStore.LoadBlock(ref)
 	if err != nil {
 		return data, err
@@ -40,7 +40,7 @@ func (r ReaderBase) loadBlock(ref wire.BlockRef) ([]byte, error) {
 	return blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, data)
 }
 
-func (r *ReaderBase) loadFileControl(ref wire.BlockRef) (wire.FileControl, error) {
+func (r *readerBase) loadFileControl(ref wire.BlockRef) (wire.FileControl, error) {
 	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
 	filehead_ref := wire.BlockRef{
 		Oid:  ref.Oid,

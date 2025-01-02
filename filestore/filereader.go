@@ -10,7 +10,7 @@ import (
 
 type fileReader struct {
 	util.ChainedReader
-	ReaderBase
+	readerBase
 }
 
 func (reader *fileReader) AddRef(ref wire.BlockRef) error {

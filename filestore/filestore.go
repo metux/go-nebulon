@@ -56,7 +56,7 @@ func (fs FileStore) StoreStream(r io.Reader, header wire.Header) (wire.BlockRef,
 
 func (fs FileStore) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, error) {
 	reader := &fileReader{
-		ReaderBase: ReaderBase{BlockStore: fs.BlockStore},
+		readerBase: readerBase{BlockStore: fs.BlockStore},
 	}
 
 	return reader.ReadStream(ref)
@@ -82,5 +82,5 @@ func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, er
 
 func (fs FileStore) OpenDirectory(ref wire.BlockRef) (DirHandle, error) {
 	return DirHandle{
-		ReaderBase: ReaderBase{BlockStore: fs.BlockStore}}, nil
+		readerBase: readerBase{BlockStore: fs.BlockStore}}, nil
 }

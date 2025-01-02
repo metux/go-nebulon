@@ -8,7 +8,7 @@ import (
 )
 
 type DirHandle struct {
-	ReaderBase
+	readerBase
 	Ref wire.BlockRef
 }
 
