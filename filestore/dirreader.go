@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -13,11 +14,10 @@ type DirHandle struct {
 }
 
 func (dh *DirHandle) Load(ref wire.BlockRef) error {
-	fctrl, err := dh.loadFileControl(ref)
+	fctrl, err := blockcrypt.LoadFileControl(dh.BlockStore, ref)
 	if err != nil {
 		panic(err)
 	}
-
 	dh.addRef(*fctrl.Content)
 	return nil
 }

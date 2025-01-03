@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockcrypt"
@@ -40,8 +41,16 @@ func (r *BlobReader) Read(p []byte) (int, error) {
 				subreaders = append(subreaders, NewBlobReader(r.BlockStore, *walk))
 			}
 			r.reader = util.NewChainedReader(subreaders...)
+		case wire.RefType_File:
+			log.Printf("FILE NOT IMPLEMENTED YET\n")
+			fctrl, err := blockcrypt.LoadFileControl(r.BlockStore, r.Ref)
+			if err != nil {
+				log.Printf("loadfilecontrol error %s\n", err)
+				return 0, err
+			}
+			r.reader = NewBlobReader(r.BlockStore, *fctrl.Content)
 		default:
-			panic(fmt.Sprintf("unsupported ref type: %s\n", r.Ref.Type))
+			return 0, fmt.Errorf("unsupported ref type: %s\n", r.Ref.Type)
 		}
 	}
 	return r.reader.Read(p)
