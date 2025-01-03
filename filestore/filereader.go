@@ -32,7 +32,7 @@ func (reader *fileReader) AddRef(ref wire.BlockRef) error {
 	return nil
 }
 
-func (r *fileReader) ReadStream(ref wire.BlockRef) (io.Reader, wire.Header, error) {
+func (r *fileReader) ReadStream(ref wire.BlockRef) (io.ReadCloser, wire.Header, error) {
 	fctrl, err := r.loadFileControl(ref)
 	if err != nil {
 		return nil, nil, err
