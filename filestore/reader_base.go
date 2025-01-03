@@ -24,7 +24,3 @@ func (r readerBase) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) 
 func (r readerBase) loadBlock(ref wire.BlockRef) ([]byte, error) {
 	return blockcrypt.BlockLoadDecrypt(r.BlockStore, ref)
 }
-
-func (r *readerBase) loadFileControl(ref wire.BlockRef) (wire.FileControl, error) {
-	return blockcrypt.LoadFileControl(r.BlockStore, ref)
-}
