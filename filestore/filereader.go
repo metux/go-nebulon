@@ -3,8 +3,12 @@ package filestore
 import (
 	"fmt"
 	"io"
+	"log"
+	"bytes"
 
 	"github.com/metux/go-nebulon/util"
+	"github.com/metux/go-nebulon/blockcrypt"
+	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -15,6 +19,21 @@ type fileReader struct {
 
 type BlobReader struct {
 	Ref wire.BlockRef
+	BlockStore base.BlockStore
+	Reader io.Reader
+}
+
+func (r * BlobReader) Read(p []byte) (int, error) {
+	if r.Reader == nil {
+		log.Printf("BlobReader: loading block")
+		data, err := blockcrypt.BlockLoadDecrypt(r.BlockStore, r.Ref)
+		if err != nil {
+			log.Printf("BlobReader: load block error: %s\n", err)
+			return 0, err
+		}
+		r.Reader = bytes.NewReader(data)
+	}
+	return r.Reader.Read(p)
 }
 
 func (reader *fileReader) AddRef(ref wire.BlockRef) error {
