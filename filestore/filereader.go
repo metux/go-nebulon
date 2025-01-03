@@ -15,7 +15,6 @@ type fileReader struct {
 
 type BlobReader struct {
 	Ref wire.BlockRef
-
 }
 
 func (reader *fileReader) AddRef(ref wire.BlockRef) error {

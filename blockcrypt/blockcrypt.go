@@ -48,10 +48,10 @@ func BlockEncrypt(cipher wire.CipherType, data []byte) ([]byte, []byte, wire.Cip
 }
 
 func BlockLoadDecrypt(bs base.BlockStore, ref wire.BlockRef) ([]byte, error) {
-	data, err := bs.LoadBlock(ref)
+	encrypted, err := bs.LoadBlock(ref)
 	if err != nil {
-		return data, err
+		return encrypted, err
 	}
 
-	return BlockDecrypt(ref.Cipher, ref.Key, data)
+	return BlockDecrypt(ref.Cipher, ref.Key, encrypted)
 }

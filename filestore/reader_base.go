@@ -16,15 +16,7 @@ type readerBase struct {
 func (r readerBase) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 
-	encrypted, err := r.BlockStore.LoadBlock(ref)
-	if err != nil {
-		return reflist, fmt.Errorf("failed loading blocklist block [%w]", err)
-	}
-
-	data, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, encrypted)
-	if err != nil {
-		return reflist, fmt.Errorf("failed decrypting blocklist [%w]", err)
-	}
+	data, err := r.loadBlock(ref)
 
 	// note do it in separate steps, since reflist is changed here
 	err = reflist.Unmarshal(data)
