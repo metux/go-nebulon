@@ -35,4 +35,6 @@ func (server *Server) MP4File(ctx *gin.Context) {
 		headers["Content-Type"],
 		reader,
 		headers)
+
+	reader.Close()
 }

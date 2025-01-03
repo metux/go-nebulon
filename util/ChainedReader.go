@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"io"
-	"log"
 )
 
 type ChainedReader struct {
@@ -20,12 +19,15 @@ func (s *ChainedReader) Read(p []byte) (n int, err error) {
 		return n, e
 	}
 
+	CloseReader(s.Readers[0])
 	s.Readers = s.Readers[1:]
 	return s.Read(p)
 }
 
 func (s *ChainedReader) Close() error {
-	log.Println("ChainedReader::Close()\n")
+	for _, ent := range s.Readers {
+		CloseReader(ent)
+	}
 	return nil
 }
 

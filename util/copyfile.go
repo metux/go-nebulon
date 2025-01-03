@@ -7,7 +7,7 @@ import (
 
 const copyChunkSize = 1024 * 1024 // 1M
 
-func CopyStreamToFile(reader io.Reader, fn string) error {
+func CopyStreamToFile(reader io.ReadCloser, fn string) error {
 	newf, err := os.Create(fn)
 	if err != nil {
 		return err
@@ -28,5 +28,6 @@ func CopyStreamToFile(reader io.Reader, fn string) error {
 			return err
 		}
 	}
+	reader.Close()
 	return nil
 }
