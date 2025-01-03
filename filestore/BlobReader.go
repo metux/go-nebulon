@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockcrypt"
+	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -29,6 +31,26 @@ func (r *BlobReader) Read(p []byte) (int, error) {
 				return 0, err
 			}
 			r.reader = bytes.NewReader(data)
+		case wire.RefType_RefList:
+			subreaders := make([]io.Reader, 0)
+			data, err := blockcrypt.BlockLoadDecrypt(r.BlockStore, r.Ref)
+			if err != nil {
+				log.Printf("loading sub-ref failed: %s\n", err)
+				return 0, err
+			}
+
+			// note do it in separate steps, since reflist is changed here
+			bl := wire.BlockRefList{}
+			err = bl.Unmarshal(data)
+			if err != nil {
+				log.Printf("unmarshalling sub-ref failed: %s\n", err)
+				return 0, err
+			}
+
+			for _, walk := range bl.Refs {
+				subreaders = append(subreaders, NewBlobReader(r.BlockStore, *walk))
+			}
+			r.reader = util.NewChainedReader(subreaders...)
 		default:
 			panic(fmt.Sprintf("unsupported ref type: %s\n", r.Ref.Type))
 		}
