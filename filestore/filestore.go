@@ -55,11 +55,14 @@ func (fs FileStore) StoreStream(r io.Reader, header wire.Header) (wire.BlockRef,
 }
 
 func (fs FileStore) ReadStream(ref wire.BlockRef) (io.ReadCloser, wire.Header, error) {
-	reader := &fileReader{
-		readerBase: readerBase{BlockStore: fs.BlockStore},
+	blobreader := NewBlobReader(fs.BlockStore, ref)
+
+	hdr, err := blobreader.GetHeader()
+	if err != nil {
+		return blobreader, hdr, err
 	}
 
-	return reader.ReadStream(ref)
+	return blobreader, hdr, nil
 }
 
 func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, error) {
