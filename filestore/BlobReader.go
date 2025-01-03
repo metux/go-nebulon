@@ -34,17 +34,10 @@ func (r *BlobReader) Read(p []byte) (int, error) {
 		case wire.RefType_RefList:
 			log.Printf("adding reflist ... %s\n", r.Ref.Dump())
 			subreaders := make([]io.Reader, 0)
-			data, err := blockcrypt.BlockLoadDecrypt(r.BlockStore, r.Ref)
+
+			bl, err := blockcrypt.BlockListLoadDecrypt(r.BlockStore, r.Ref)
 			if err != nil {
 				log.Printf("loading sub-ref failed: %s\n", err)
-				return 0, err
-			}
-
-			// note do it in separate steps, since reflist is changed here
-			bl := wire.BlockRefList{}
-			err = bl.Unmarshal(data)
-			if err != nil {
-				log.Printf("unmarshalling sub-ref failed: %s\n", err)
 				return 0, err
 			}
 
