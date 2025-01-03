@@ -1,4 +1,3 @@
-* add slice blockref's --> honor them in file reader
 * signatures ?
 * timestamps ?
 
@@ -8,7 +7,12 @@
     raw block download
 
 * file head:
-    include blockref lists ?
+    include blockref lists into the head itself ?
 
 * ref:
     inline data (no oid, but data)
+
+* file reader:
+    * support ranges
+    * separate per-block reader objects
+    * background fetch (goroutines)
