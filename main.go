@@ -20,8 +20,8 @@ const (
 	server_port    = ":8080"
 )
 
-func runServer(fs base.FileStore) {
-	srv := httpd.NewServer(fs)
+func runServer(bs base.BlockStore, fs base.FileStore) {
+	srv := httpd.NewServer(bs, fs)
 	srv.DoUpload(filename, wire.ContentType_MP4)
 	log.Printf("UP: %s\n", srv.Ref.Dump())
 	srv.Run(server_port)
@@ -43,8 +43,9 @@ func runDirTree(fs base.FileStore) {
 }
 
 func main() {
-	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
+	bs := blockstore.NewSimpleStore(".storedata")
+	fs := filestore.NewFileStore(bs)
 
 	runDirTree(fs)
-	// runServer(fs)
+	runServer(bs, fs)
 }

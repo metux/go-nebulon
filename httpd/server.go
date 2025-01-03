@@ -11,16 +11,19 @@ import (
 
 type Server struct {
 	Router *gin.Engine
+	bs     base.BlockStore
 	fs     base.FileStore
 	Ref    wire.BlockRef
 }
 
-func NewServer(fs base.FileStore) *Server {
+func NewServer(bs base.BlockStore, fs base.FileStore) *Server {
 	s := new(Server)
+	s.bs = bs
 	s.fs = fs
 	s.Router = gin.Default()
 	s.Router.GET("/", s.HomePage)
 	s.Router.GET("/mp4", s.MP4File)
+	s.Router.GET("/block/:id", s.GetBlock)
 	log.Printf("router initialized\n")
 	return s
 }
