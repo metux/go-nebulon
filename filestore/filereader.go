@@ -37,14 +37,16 @@ func (r * BlobReader) Read(p []byte) (int, error) {
 }
 
 func (reader *fileReader) AddRef(ref wire.BlockRef) error {
-	data, err := reader.loadBlock(ref)
+	_, err := reader.loadBlock(ref)
 	if err != nil {
 		return err
 	}
 
 	switch ref.Type {
 	case wire.RefType_Blob:
-		reader.AddBytes(data)
+//		reader.AddBytes(data)
+		br := BlobReader{Ref: ref, BlockStore: reader.BlockStore}
+		reader.AddReader(&br)
 	case wire.RefType_RefList:
 		bl, err := reader.loadBlockList(ref)
 		if err != nil {
