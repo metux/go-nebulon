@@ -2,6 +2,7 @@ package filestore
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 
 	"github.com/metux/go-nebulon/base"
@@ -21,11 +22,16 @@ type BlobReader struct {
 
 func (r *BlobReader) Read(p []byte) (int, error) {
 	if r.reader == nil {
-		data, err := blockcrypt.BlockLoadDecrypt(r.BlockStore, r.Ref)
-		if err != nil {
-			return 0, err
+		switch r.Ref.Type {
+		case wire.RefType_Blob:
+			data, err := blockcrypt.BlockLoadDecrypt(r.BlockStore, r.Ref)
+			if err != nil {
+				return 0, err
+			}
+			r.reader = bytes.NewReader(data)
+		default:
+			panic(fmt.Sprintf("unsupported ref type: %s\n", r.Ref.Type))
 		}
-		r.reader = bytes.NewReader(data)
 	}
 	return r.reader.Read(p)
 }
