@@ -1,8 +1,6 @@
 package filestore
 
 import (
-	"fmt"
-
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/wire"
@@ -28,21 +26,5 @@ func (r readerBase) loadBlock(ref wire.BlockRef) ([]byte, error) {
 }
 
 func (r *readerBase) loadFileControl(ref wire.BlockRef) (wire.FileControl, error) {
-	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
-	filehead_ref := wire.BlockRef{
-		Oid:  ref.Oid,
-		Type: ref.Type,
-	}
-
-	filehead_bin, err := r.loadBlock(filehead_ref)
-	if err != nil {
-		return wire.FileControl{}, fmt.Errorf("failed loading FileHead [%w]", err)
-	}
-
-	filehead, err := wire.FileHeadUnmarshal(filehead_bin)
-	if err != nil {
-		return wire.FileControl{}, fmt.Errorf("failed unmarshalling FileHead [%w]", err)
-	}
-
-	return blockcrypt.DecryptFileControl(ref.Cipher, ref.Key, filehead.Private)
+	return blockcrypt.LoadFileControl(r.BlockStore, ref)
 }
