@@ -182,7 +182,7 @@ func (ctx *FileWriteContext) StoreStream(r io.Reader, header wire.Header) (wire.
 	return ctx.StoreFileControl(
 		wire.FileControl{
 			Content:   &content_ref,
-			Headers:   header,
+			Header:    header,
 			Directory: false})
 }
 

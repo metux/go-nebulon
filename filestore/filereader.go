@@ -13,13 +13,13 @@ type fileReader struct {
 }
 
 func (r *fileReader) ReadStream(ref wire.BlockRef) (io.ReadCloser, wire.Header, error) {
-	fctrl, err := r.loadFileControl(ref)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	blobreader := NewBlobReader(r.BlockStore, *fctrl.Content)
+	blobreader := NewBlobReader(r.BlockStore, ref)
 	r.AddReader(blobreader)
 
-	return r, fctrl.Headers, nil
+	h, err := blobreader.GetHeader()
+	if err != nil {
+		return r, h, err
+	}
+
+	return r, h, nil
 }

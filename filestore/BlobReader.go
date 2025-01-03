@@ -20,40 +20,50 @@ type BlobReader struct {
 	Ref        wire.BlockRef
 	BlockStore base.BlockStore
 	reader     io.Reader
+	header     wire.Header
 }
 
 func (r *BlobReader) Read(p []byte) (int, error) {
-	if r.reader == nil {
-		switch r.Ref.Type {
-		case wire.RefType_Blob:
-			data, err := blockcrypt.BlockLoadDecrypt(r.BlockStore, r.Ref)
-			if err != nil {
-				return 0, err
-			}
-			r.reader = bytes.NewReader(data)
-		case wire.RefType_RefList:
-			bl, err := blockcrypt.BlockListLoadDecrypt(r.BlockStore, r.Ref)
-			if err != nil {
-				return 0, err
-			}
-			subreaders := make([]io.Reader, 0)
-			for _, walk := range bl.Refs {
-				subreaders = append(subreaders, NewBlobReader(r.BlockStore, *walk))
-			}
-			r.reader = util.NewChainedReader(subreaders...)
-		case wire.RefType_File:
-			log.Printf("FILE NOT IMPLEMENTED YET\n")
-			fctrl, err := blockcrypt.LoadFileControl(r.BlockStore, r.Ref)
-			if err != nil {
-				log.Printf("loadfilecontrol error %s\n", err)
-				return 0, err
-			}
-			r.reader = NewBlobReader(r.BlockStore, *fctrl.Content)
-		default:
-			return 0, fmt.Errorf("unsupported ref type: %s\n", r.Ref.Type)
-		}
+	if err := r.init(); err != nil {
+		return 0, err
 	}
 	return r.reader.Read(p)
+}
+
+func (r *BlobReader) init() error {
+	if r.reader != nil {
+		return nil
+	}
+
+	switch r.Ref.Type {
+	case wire.RefType_Blob:
+		data, err := blockcrypt.BlockLoadDecrypt(r.BlockStore, r.Ref)
+		if err != nil {
+			return err
+		}
+		r.reader = bytes.NewReader(data)
+	case wire.RefType_RefList:
+		bl, err := blockcrypt.BlockListLoadDecrypt(r.BlockStore, r.Ref)
+		if err != nil {
+			return err
+		}
+		subreaders := make([]io.Reader, 0)
+		for _, walk := range bl.Refs {
+			subreaders = append(subreaders, NewBlobReader(r.BlockStore, *walk))
+		}
+		r.reader = util.NewChainedReader(subreaders...)
+	case wire.RefType_File:
+		fctrl, err := blockcrypt.LoadFileControl(r.BlockStore, r.Ref)
+		if err != nil {
+			log.Printf("loadfilecontrol error %s\n", err)
+			return err
+		}
+		r.reader = NewBlobReader(r.BlockStore, *fctrl.Content)
+		r.header = fctrl.Header
+	default:
+		return fmt.Errorf("unsupported ref type: %s\n", r.Ref.Type)
+	}
+	return nil
 }
 
 func (r *BlobReader) Close() error {
@@ -61,6 +71,13 @@ func (r *BlobReader) Close() error {
 	r.Ref = wire.BlockRef{}
 	r.BlockStore = nil
 	return nil
+}
+
+func (r *BlobReader) GetHeader() (wire.Header, error) {
+	if err := r.init(); err != nil {
+		return wire.Header{}, err
+	}
+	return r.header, nil
 }
 
 func NewBlobReader(bs base.BlockStore, ref wire.BlockRef) *BlobReader {
