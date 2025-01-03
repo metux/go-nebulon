@@ -38,9 +38,8 @@ func (r *fileReader) ReadStream(ref wire.BlockRef) (io.ReadCloser, wire.Header, 
 		return nil, nil, err
 	}
 
-	if err = r.AddRef(*fctrl.Content); err != nil {
-		return nil, nil, err
-	}
+	blobreader := NewBlobReader(r.BlockStore, *fctrl.Content)
+	r.AddReader(blobreader)
 
 	return r, fctrl.Headers, nil
 }
