@@ -109,7 +109,7 @@ func parseRange(s string, size int64) ([]httpRange, error) {
 		ranges = append(ranges, r)
 	}
 
-	log.Printf("noOverlap: %s\n", noOverlap)
+	//	log.Printf("noOverlap: %s\n", noOverlap)
 	log.Printf("ranges=%+v\n", ranges)
 
 	if noOverlap && len(ranges) == 0 {
