@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockcrypt"
 	"github.com/metux/go-nebulon/wire"
 )
 
 type DirHandle struct {
-	readerBase
+	BlockStore base.BlockStore
 	refs []wire.BlockRef
 }
 

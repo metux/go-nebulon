@@ -83,16 +83,9 @@ func (fs FileStore) StoreDirectory(entries wire.BlockRefList) (wire.BlockRef, er
 			Directory: true})
 }
 
-func (fs FileStore) OpenDirectory(ref wire.BlockRef) (DirHandle, error) {
-	d := DirHandle{
-		readerBase: readerBase{BlockStore: fs.BlockStore}}
-	err := d.Load(ref)
-	return d, err
-}
-
 func (fs FileStore) ReadDirectory(ref wire.BlockRef) ([]wire.BlockRef, error) {
 	d := DirHandle{
-		readerBase: readerBase{BlockStore: fs.BlockStore}}
+		BlockStore: fs.BlockStore}
 	if err := d.Load(ref); err != nil {
 		return []wire.BlockRef{}, err
 	}
