@@ -57,10 +57,5 @@ func (r *readerBase) loadFileControl(ref wire.BlockRef) (wire.FileControl, error
 		return wire.FileControl{}, fmt.Errorf("failed unmarshalling FileHead [%w]", err)
 	}
 
-	fctrl_bin, err := blockcrypt.BlockDecrypt(ref.Cipher, ref.Key, filehead.Private)
-	if err != nil {
-		return wire.FileControl{}, fmt.Errorf("error decrypting FileControl [%w]", err)
-	}
-
-	return wire.FileControlUnmarshal(fctrl_bin)
+	return blockcrypt.DecryptFileControl(ref.Cipher, ref.Key, filehead.Private)
 }
