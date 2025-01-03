@@ -14,13 +14,9 @@ type readerBase struct {
 func (r readerBase) loadBlockList(ref wire.BlockRef) (wire.BlockRefList, error) {
 	reflist := wire.BlockRefList{}
 
-	data, err := r.loadBlock(ref)
+	data, err := blockcrypt.BlockLoadDecrypt(r.BlockStore, ref)
 
 	// note do it in separate steps, since reflist is changed here
 	err = reflist.Unmarshal(data)
 	return reflist, err
-}
-
-func (r readerBase) loadBlock(ref wire.BlockRef) ([]byte, error) {
-	return blockcrypt.BlockLoadDecrypt(r.BlockStore, ref)
 }
