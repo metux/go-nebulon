@@ -33,14 +33,18 @@ func panicX(err error) {
 	}
 }
 
-func main() {
-	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
+func runDirTree(fs base.FileStore) {
 
 	ref, err := helpers.PutDirectory(fs, "", ".", util.FilterSkipHidden)
 	panicX(err)
 
 	panicX(helpers.CompareTree(fs, ".", ref, test_temp_file))
 	log.Printf("CompareTree() done\n")
+}
 
-	// runServer(fs)
+func main() {
+	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
+
+	// runDirtTree(fs)
+	runServer(fs)
 }
