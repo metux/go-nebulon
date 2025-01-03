@@ -27,7 +27,7 @@ func (dh *DirHandle) addRef(ref wire.BlockRef) error {
 	case wire.RefType_Blob:
 		log.Printf("DirHandle: didnt expect blob here\n")
 	case wire.RefType_RefList:
-		bl, err := dh.loadBlockList(ref)
+		bl, err := blockcrypt.BlockListLoadDecrypt(dh.BlockStore, ref)
 		if err != nil {
 			return err
 		}
