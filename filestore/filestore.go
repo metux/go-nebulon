@@ -39,10 +39,11 @@ func NewFileStore(bs base.BlockStore) FileStore {
 
 func (fs FileStore) mkWriter() FileWriteContext {
 	return FileWriteContext{
-		BlockStore:    fs.BlockStore,
-		Cipher:        fs.Encryption,
-		DataBlockSize: fs.BlockSize,
-		BlockListMax:  fs.BlockListMax,
+		BlockStore:      fs.BlockStore,
+		Cipher:          fs.Encryption,
+		DataBlockSize:   fs.BlockSize,
+		BlockListMax:    fs.BlockListMax,
+		RecordBlockSize: true,
 	}
 }
 

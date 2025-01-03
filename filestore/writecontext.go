@@ -23,6 +23,8 @@ type FileWriteContext struct {
 	// max number of BlockRef entries when creating BlockList's
 	// bigger lists will be splitted into separate BlockList objects.
 	BlockListMax int
+	// shall we record the block size in refs (for optimized streaming) ?
+	RecordBlockSize bool
 }
 
 func (ctx *FileWriteContext) AddGrabRef(ref wire.BlockRef) {
@@ -169,6 +171,10 @@ func (ctx *FileWriteContext) writeDataBlock(data []byte, cipher wire.CipherType)
 
 	ref.Key = key
 	ref.Cipher = cipher
+
+	if ctx.RecordBlockSize {
+		ref.Limit = int32(len(data))
+	}
 
 	return ref, nil
 }

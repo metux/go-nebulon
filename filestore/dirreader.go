@@ -11,7 +11,7 @@ import (
 
 type DirHandle struct {
 	BlockStore base.BlockStore
-	refs []wire.BlockRef
+	refs       []wire.BlockRef
 }
 
 func (dh *DirHandle) Load(ref wire.BlockRef) error {
