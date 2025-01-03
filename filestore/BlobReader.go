@@ -30,6 +30,13 @@ func (r *BlobReader) Read(p []byte) (int, error) {
 	return r.reader.Read(p)
 }
 
+func (r *BlobReader) Close() error {
+	r.reader = nil
+	r.Ref = wire.BlockRef{}
+	r.BlockStore = nil
+	return nil
+}
+
 func NewBlobReader(bs base.BlockStore, ref wire.BlockRef) *BlobReader {
 	reader := BlobReader{
 		BlockStore: bs,
