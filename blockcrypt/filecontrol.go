@@ -3,6 +3,7 @@ package blockcrypt
 import (
 	"fmt"
 
+	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
 )
 
@@ -27,4 +28,24 @@ func DecryptFileControl(cipher wire.CipherType, key []byte, private []byte) (wir
 	}
 
 	return wire.FileControlUnmarshal(fctrl_bin)
+}
+
+func LoadFileControl(bs base.BlockStore, ref wire.BlockRef) (wire.FileControl, error) {
+	// load the index block -- strip off the, that's later used used to decrypt the FileControl block
+	filehead_ref := wire.BlockRef{
+		Oid:  ref.Oid,
+		Type: ref.Type,
+	}
+
+	filehead_bin, err := BlockLoadDecrypt(bs, filehead_ref)
+	if err != nil {
+		return wire.FileControl{}, fmt.Errorf("failed loading FileHead [%w]", err)
+	}
+
+	filehead, err := wire.FileHeadUnmarshal(filehead_bin)
+	if err != nil {
+		return wire.FileControl{}, fmt.Errorf("failed unmarshalling FileHead [%w]", err)
+	}
+
+	return DecryptFileControl(ref.Cipher, ref.Key, filehead.Private)
 }
