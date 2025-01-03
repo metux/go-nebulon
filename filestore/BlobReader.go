@@ -32,15 +32,11 @@ func (r *BlobReader) Read(p []byte) (int, error) {
 			}
 			r.reader = bytes.NewReader(data)
 		case wire.RefType_RefList:
-			log.Printf("adding reflist ... %s\n", r.Ref.Dump())
-			subreaders := make([]io.Reader, 0)
-
 			bl, err := blockcrypt.BlockListLoadDecrypt(r.BlockStore, r.Ref)
 			if err != nil {
-				log.Printf("loading sub-ref failed: %s\n", err)
 				return 0, err
 			}
-
+			subreaders := make([]io.Reader, 0)
 			for _, walk := range bl.Refs {
 				subreaders = append(subreaders, NewBlobReader(r.BlockStore, *walk))
 			}
