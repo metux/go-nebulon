@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	//	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/wire"
 )
 
