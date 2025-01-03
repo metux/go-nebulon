@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/blockcrypt"
@@ -55,7 +54,6 @@ func (r *BlobReader) init() error {
 	case wire.RefType_File:
 		fctrl, err := blockcrypt.LoadFileControl(r.BlockStore, r.Ref)
 		if err != nil {
-			log.Printf("loadfilecontrol error %s\n", err)
 			return err
 		}
 		r.reader = NewBlobReader(r.BlockStore, *fctrl.Content)
