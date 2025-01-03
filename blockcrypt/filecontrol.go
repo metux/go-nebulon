@@ -26,8 +26,5 @@ func DecryptFileControl(cipher wire.CipherType, key []byte, private []byte) (wir
 		return wire.FileControl{}, fmt.Errorf("error decrypting FileControl [%w]", err)
 	}
 
-	fctrl := wire.FileControl{}
-	fctrl.Unmarshal(fctrl_bin)
-
-	return fctrl, nil
+	return wire.FileControlUnmarshal(fctrl_bin)
 }

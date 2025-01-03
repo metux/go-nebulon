@@ -8,6 +8,9 @@ func (fc FileControl) Marshal() ([]byte, error) {
 	return proto.Marshal(&fc)
 }
 
-func (fc *FileControl) Unmarshal(data []byte) error {
-	return proto.Unmarshal(data, fc)
+func FileControlUnmarshal(data []byte) (FileControl, error) {
+	// needs to be in this order
+	fc := FileControl{}
+	err := proto.Unmarshal(data, &fc)
+	return fc, err
 }

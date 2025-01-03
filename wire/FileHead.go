@@ -11,7 +11,13 @@ func (rl FileHead) Marshal() ([]byte, error) {
 	return proto.Marshal(&rl)
 }
 
-func (rl *FileHead) Unmarshal(data []byte) error {
-	err := proto.Unmarshal(data, rl)
-	return err
+//func (rl *FileHead) Unmarshal(data []byte) error {
+//	err := proto.Unmarshal(data, rl)
+//	return err
+//}
+
+func FileHeadUnmarshal(data []byte) (FileHead, error) {
+	fh := FileHead{}
+	err := proto.Unmarshal(data, &fh)
+	return fh, err
 }
