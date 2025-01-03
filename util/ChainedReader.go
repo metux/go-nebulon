@@ -24,7 +24,11 @@ func (s *ChainedReader) Read(p []byte) (n int, err error) {
 }
 
 func (s *ChainedReader) AddBytes(p []byte) {
-	s.Readers = append(s.Readers, bytes.NewReader(p))
+	s.AddReader(bytes.NewReader(p))
+}
+
+func (s *ChainedReader) AddReader(r io.Reader) {
+	s.Readers = append(s.Readers, r)
 }
 
 func NewChainedReader(arg ...io.Reader) io.Reader {

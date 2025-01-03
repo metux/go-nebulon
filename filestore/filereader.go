@@ -13,6 +13,11 @@ type fileReader struct {
 	readerBase
 }
 
+type BlobReader struct {
+	Ref wire.BlockRef
+
+}
+
 func (reader *fileReader) AddRef(ref wire.BlockRef) error {
 	data, err := reader.loadBlock(ref)
 	if err != nil {
