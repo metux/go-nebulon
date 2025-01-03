@@ -45,6 +45,6 @@ func runDirTree(fs base.FileStore) {
 func main() {
 	fs := filestore.NewFileStore(blockstore.NewSimpleStore(".storedata"))
 
-	// runDirtTree(fs)
-	runServer(fs)
+	runDirTree(fs)
+//	runServer(fs)
 }

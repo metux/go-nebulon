@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/metux/go-nebulon/base"
 	"github.com/metux/go-nebulon/util"
 	"github.com/metux/go-nebulon/wire"
 )
@@ -44,4 +45,13 @@ func BlockEncrypt(cipher wire.CipherType, data []byte) ([]byte, []byte, wire.Cip
 	default:
 		return []byte{}, []byte{}, cipher, fmt.Errorf("unsupported cipher type: %s", cipher)
 	}
+}
+
+func BlockLoadDecrypt(bs base.BlockStore, ref wire.BlockRef) ([]byte, error) {
+	data, err := bs.LoadBlock(ref)
+	if err != nil {
+		return data, err
+	}
+
+	return BlockDecrypt(ref.Cipher, ref.Key, data)
 }
