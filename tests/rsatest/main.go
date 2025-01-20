@@ -11,26 +11,40 @@ import (
 
 func encryptAnnounce(ref wire.BlockRef, keyfn string) ([]byte, error) {
 	now := time.Now()
-	frame := wire.AnnouncePayload{
+	payload := wire.AnnouncePayload{
 		Seconds: now.Unix(),
 		Nanos:   now.UnixNano(),
 		Ref:     &ref,
 	}
 
+	encoded_payload, err := payload.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("encoded payload size %d\n", len(encoded_payload))
+
+	encrypted_payload, err := util.RSAEncrypt(keyfn, encoded_payload)
+	if err != nil {
+		log.Printf("frame encrypt error %s\n", err)
+		return nil, err
+	}
+
+	log.Printf("encrypted payload size %d\n", len(encrypted_payload))
+
+	frame := wire.AnnounceFrame{
+		Cipher:  wire.AsymCipherType_RSA,
+		Payload: encrypted_payload,
+	}
+
 	encoded_frame, err := frame.Marshal()
 	if err != nil {
-		log.Printf("frame marshal error: %s\n", err)
+		log.Printf("marshal frame failed\n")
 		return nil, err
 	}
 
 	log.Printf("encoded frame size %d\n", len(encoded_frame))
-
-	encrypted_frame, err := util.RSAEncrypt(keyfn, encoded_frame)
-	if err != nil {
-		log.Printf("frame encrypt error %s\n", err)
-	}
-
-	return encrypted_frame, nil
+	return encoded_frame, nil
 }
 
 func main() {
