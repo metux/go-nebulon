@@ -27,6 +27,6 @@ message AnnouncePayload {
     // optional sender indication (prefix of his pubkey SHA256)
     bytes sender = 1;
     BlockRef ref = 2;
-    uint64 seconds = 3;
-    uint64 nanos = 4;
+    int64 seconds = 3;
+    int64 nanos = 4;
 }

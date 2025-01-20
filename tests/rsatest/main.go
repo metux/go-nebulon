@@ -1,39 +1,36 @@
 package main
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha256"
 	"encoding/base64"
 	"log"
+	"time"
 
+	"github.com/metux/go-nebulon/core/wire"
 	"github.com/metux/go-nebulon/util"
 )
 
-func encrypt(pubkey_fn string, s string) []byte {
-	pubkey, err := util.LoadRSAPublicKey(pubkey_fn)
-	if err != nil {
-		log.Fatalf("error loading key: %s", err)
-	}
-	ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, pubkey, []byte(s), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return ciphertext
-}
-
-func decrypt(privkey_fn string, ciphertext []byte) string {
-	privateKey, err := util.LoadRSAPrivateKey(privkey_fn)
-	if err != nil {
-		log.Fatalf("error loading privkey %s\n", err)
+func encryptAnnounce(ref wire.BlockRef, keyfn string) ([]byte, error) {
+	now := time.Now()
+	frame := wire.AnnouncePayload{
+		Seconds: now.Unix(),
+		Nanos:   now.UnixNano(),
+		Ref:     &ref,
 	}
 
-	decryptedPlaintext, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, ciphertext, nil)
+	encoded_frame, err := frame.Marshal()
 	if err != nil {
-		panic(err)
+		log.Printf("frame marshal error: %s\n", err)
+		return nil, err
 	}
 
-	return string(decryptedPlaintext)
+	log.Printf("encoded frame size %d\n", len(encoded_frame))
+
+	encrypted_frame, err := util.RSAEncrypt(keyfn, encoded_frame)
+	if err != nil {
+		log.Printf("frame encrypt error %s\n", err)
+	}
+
+	return encrypted_frame, nil
 }
 
 func main() {
@@ -42,10 +39,28 @@ func main() {
 	pubkeyfile := "/home/nekrad/.ssh/id_rsa.pub.pem"
 	privkeyfile := "/home/nekrad/.ssh/id_rsa"
 
-	encrypted := encrypt(pubkeyfile, text)
+	encrypted, err := util.RSAEncrypt(pubkeyfile, []byte(text))
+	if err != nil {
+		log.Fatalf("rsa encrypt error %s\n")
+	}
 	log.Printf("encrypted size %d\n", len(encrypted))
-	b64 := base64.StdEncoding.EncodeToString(encrypted)
+	log.Printf("Encrypted: %s\n", base64.StdEncoding.EncodeToString(encrypted))
 
-	log.Printf("Encrypted: %s\n", b64)
-	log.Printf("Decrypted: %s\n", decrypt(privkeyfile, encrypted))
+	decrypted, err := util.RSADecrypt(privkeyfile, encrypted)
+	if err != nil {
+		log.Fatalf("rsa decrypt failed: %s\n", err)
+	}
+	log.Printf("Decrypted: %s\n", string(decrypted))
+
+	ref := wire.BlockRef{
+		Oid: []byte("hello world huhu"),
+		Key: []byte("foo bar"),
+	}
+
+	encoded_frame, err := encryptAnnounce(ref, pubkeyfile)
+	if err != nil {
+		log.Printf("encryptAnnounce() error %s\n", err)
+	}
+
+	log.Printf("encrypted frame size %d\n", len(encoded_frame))
 }
