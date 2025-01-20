@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package wire;
+
+option go_package = "../wire";
+
+import public "core/blockref.proto";
+
+enum AsymCipherType {
+    UndefinedCipher = 0;
+    RSA = 1;
+}
+
+message AnnounceFrame {
+    // target filter (prefix of the receiver's pubkey SHA256)
+    bytes target = 1;
+    // cipher to use for payload and (optional) signature
+    AsymCipherType cipher = 2;
+    // AnnouncePayload - encrypted with receiver pubkey
+    bytes payload = 4;
+    // sha256 over the payload, encrypted with sender's privkey
+    bytes signature = 5;
+}
+
+// the actual announce message payload
+message AnnouncePayload {
+    // optional sender indication (prefix of his pubkey SHA256)
+    bytes sender = 1;
+    BlockRef ref = 2;
+    uint64 seconds = 3;
+    uint64 nanos = 4;
+}

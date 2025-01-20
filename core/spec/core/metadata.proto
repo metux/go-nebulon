@@ -5,7 +5,7 @@ package wire;
 option go_package = "../wire";
 
 enum FileClass {
-    Undefined = 0;
+    UndefinedClass = 0;
     Audio = 1;
     Video = 2;
     Image = 3;
