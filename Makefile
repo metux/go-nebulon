@@ -2,7 +2,7 @@ include make.conf
 
 EXECUTABLE=go-nebulon
 TEMPFILES=*.tmp .*.tmp .tmp swagger.json blockstore/.tmp
-SUBDIRS := tests core/wire cmd/perseus
+SUBDIRS := tests core/wire cmd/perseus tests/rsatest
 
 test: compile
 	@if $(GO) test -v $(PACKAGE)/... ; then echo "=== Test okay ===" ; else echo " ==== self-test failed === "; exit 1 ; fi
